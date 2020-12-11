@@ -1,4 +1,4 @@
-# STTApp
+# S2TApp
 
 Speech-to-text App for Android Phones
 
