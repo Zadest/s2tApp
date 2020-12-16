@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">S2T_Empty</string>
+    <string name="pause_button">Play/Pause</string>
+    <string name="stop_button">Stop</string>
 </resources>
