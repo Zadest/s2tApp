@@ -2,13 +2,9 @@ package com.example.s2t_empty;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.annotation.SuppressLint;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
     //TODO: read in Whatsapp-Filenames (with special characters)
@@ -24,8 +20,18 @@ public class MainActivity extends AppCompatActivity {
         play_pause_icon = findViewById(R.id.play_pause);
         stop_icon = findViewById(R.id.stop_play);
 
-        //'create': no need to prepare MediaPlayer
+        //'create': no need to prepare MediaPlayer --> possible when using uri?
         final MediaPlayer mp = MediaPlayer.create(this, R.raw.test);
+
+        // play from local URI
+        /*
+        Uri myUri = ...;
+        MediaPlayer mp = new MediaPlayer();
+        mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mp.setDataSource(getApplicationContext(), myUri);
+        mediaPlayer.prepare();
+        mediaPlayer.start();
+         */
 
         //Click Listener for Playbutton
         play_pause_icon.setOnClickListener(v -> {
