@@ -2,16 +2,15 @@ package com.example.s2t_empty;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 
 import android.widget.ImageView;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 import android.content.Intent;
-import android.content.ClipData;
 import android.net.Uri;
+
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
     //TODO: read in Whatsapp-Filenames (with special characters)
@@ -29,10 +28,19 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String action = intent.getAction();
         String type = intent.getType();
+        Uri myUri = null;
+
+        MediaPlayer mp = new MediaPlayer();
+        mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
         if (Intent.ACTION_SEND.equals(action) && type != null){
             // verarbeite den Intent
-            Uri myUri = handleSendVoice(intent);
+            myUri = handleSendVoice(intent);
+            try {
+                mp.setDataSource(getApplicationContext(), myUri);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         else{
             // Do something else
@@ -43,17 +51,15 @@ public class MainActivity extends AppCompatActivity {
         stop_icon = findViewById(R.id.stop_play);
 
         //'create': no need to prepare MediaPlayer --> possible when using uri?
-        final MediaPlayer mp = MediaPlayer.create(this, R.raw.test);
+        //final MediaPlayer mp = MediaPlayer.create(this, R.raw.test);
 
         // play from local URI
-        /*
-        Uri myUri = ...;
-        MediaPlayer mp = new MediaPlayer();
-        mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mp.setDataSource(getApplicationContext(), myUri);
-        mediaPlayer.prepare();
-        mediaPlayer.start();
-         */
+
+        try {
+            mp.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         //Click Listener for Playbutton
         play_pause_icon.setOnClickListener(v -> {
