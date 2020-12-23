@@ -4,7 +4,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.media.MediaPlayer;
 import android.os.Bundle;
+
 import android.widget.ImageView;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import android.content.Intent;
+import android.content.ClipData;
+import android.net.Uri;
 
 public class MainActivity extends AppCompatActivity {
     //TODO: read in Whatsapp-Filenames (with special characters)
@@ -43,6 +50,28 @@ public class MainActivity extends AppCompatActivity {
                 play_pause_icon.setImageResource(R.drawable.ic_baseline_play_arrow_24);
             }
         });
+        // Get Intent ( ueberprueft die durch "Share" uebergebene Datei )
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        String type = intent.getType();
+
+        if (Intent.ACTION_SEND.equals(action) && type != null){
+            // verarbeite den Intent
+            TextView myText = (TextView) findViewById(R.id.textView5);
+            myText.setText(type);
+            handleSendVoice(intent);
+        }
+        else{
+            // Do something else
+        }
+    }
+
+    void handleSendVoice(Intent intent){
+        Uri voiceUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+        if (voiceUri != null){
+            System.out.println("Yay! Sound da, alles gut!");
+        }
+    }
 
         //Clicklistener for Stopbutton
         stop_icon.setOnClickListener(v -> {
@@ -51,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
                 play_pause_icon.setImageResource(R.drawable.ic_baseline_play_arrow_24);
         });
     }
+
 
 
 }
