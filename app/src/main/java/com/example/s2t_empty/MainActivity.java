@@ -24,6 +24,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Get Intent ( ueberprueft die durch "Share" uebergebene Datei )
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        String type = intent.getType();
+
+        if (Intent.ACTION_SEND.equals(action) && type != null){
+            // verarbeite den Intent
+            Uri myUri = handleSendVoice(intent);
+        }
+        else{
+            // Do something else
+        }
+
+        //MediaPlayer
         play_pause_icon = findViewById(R.id.play_pause);
         stop_icon = findViewById(R.id.stop_play);
 
@@ -50,37 +65,21 @@ public class MainActivity extends AppCompatActivity {
                 play_pause_icon.setImageResource(R.drawable.ic_baseline_play_arrow_24);
             }
         });
-        // Get Intent ( ueberprueft die durch "Share" uebergebene Datei )
-        Intent intent = getIntent();
-        String action = intent.getAction();
-        String type = intent.getType();
 
-        if (Intent.ACTION_SEND.equals(action) && type != null){
-            // verarbeite den Intent
-            TextView myText = (TextView) findViewById(R.id.textView5);
-            myText.setText(type);
-            handleSendVoice(intent);
-        }
-        else{
-            // Do something else
-        }
+        //Clicklistener for Stopbutton
+        stop_icon.setOnClickListener(v -> {
+            mp.pause();
+            mp.seekTo(0);
+            play_pause_icon.setImageResource(R.drawable.ic_baseline_play_arrow_24);
+        });
+
     }
 
-    void handleSendVoice(Intent intent){
+    Uri handleSendVoice(Intent intent){
         Uri voiceUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
         if (voiceUri != null){
             System.out.println("Yay! Sound da, alles gut!");
         }
+        return voiceUri;
     }
-
-        //Clicklistener for Stopbutton
-        stop_icon.setOnClickListener(v -> {
-                mp.pause();
-                mp.seekTo(0);
-                play_pause_icon.setImageResource(R.drawable.ic_baseline_play_arrow_24);
-        });
-    }
-
-
-
 }
