@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="placeholder">
+        Platzhalter
+    </string>
+    <string name="textdisplay">
+        Hier steht der Inhalt Ihrer Sprachnachricht!
+    </string>
+    <string name="convert">
+        Sprachnachricht umwandeln
+    </string>
+    <string name="save">
+        Speichern
+    </string>
+    <string name="extract">
+        Namen/Datum extrahieren
+    </string>
+</resources>

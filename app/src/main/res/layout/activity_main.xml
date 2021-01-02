@@ -8,31 +8,27 @@
 
     <TextView
         android:id="@+id/textView5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="TextView"
+        android:layout_width="381dp"
+        android:layout_height="255dp"
+        android:layout_marginTop="204dp"
+        android:text="@string/textdisplay"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/button_speechtotext"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.466"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.046" />
 
     <Button
-        android:id="@+id/button_id"
+        android:id="@+id/button_speechtotext"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginLeft="32dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginRight="32dp"
-        android:layout_marginBottom="32dp"
         android:onClick="changeText"
-        android:text="Button"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="@string/convert"
+        app:layout_constraintBottom_toTopOf="@+id/button_namedentity"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView5"
-        app:layout_constraintVertical_bias="0.501" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -47,9 +43,29 @@
         android:layout_marginBottom="8dp"
         android:max="100"
         android:progress="0"
-        app:layout_constraintBottom_toTopOf="@+id/button_id"
+        app:layout_constraintBottom_toTopOf="@+id/button_speechtotext"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView5" />
+        app:layout_constraintTop_toBottomOf="@+id/textView5"
+        app:layout_constraintVertical_bias="0.902" />
+
+    <Button
+        android:id="@+id/button_namedentity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/extract"
+        app:layout_constraintBottom_toTopOf="@+id/button_savetext"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/button_savetext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/save"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
