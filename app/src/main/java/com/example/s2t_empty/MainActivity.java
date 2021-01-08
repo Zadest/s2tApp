@@ -82,25 +82,23 @@ public class MainActivity extends AppCompatActivity {
             mp.prepare();
         } catch (IOException e) {
             e.printStackTrace();
-
-            //Click Listener for Playbutton
-            play_pause_icon.setOnClickListener(v -> {
-                if (!mp.isPlaying()) {
-                    mp.start();
-                    play_pause_icon.setImageResource(R.drawable.ic_baseline_pause_24);
-                } else {
-                    mp.pause();
-                    play_pause_icon.setImageResource(R.drawable.ic_baseline_play_arrow_24);
-                }
-            });
-            //Clicklistener for Stopbutton
-            stop_icon.setOnClickListener(v -> {
-                mp.pause();
-                mp.seekTo(0);
-                play_pause_icon.setImageResource(R.drawable.ic_baseline_play_arrow_24);
-            });
-
         }
+            //Click Listener for Playbutton
+        play_pause_icon.setOnClickListener(v -> {
+            if (!mp.isPlaying()) {
+                mp.start();
+                play_pause_icon.setImageResource(R.drawable.ic_baseline_pause_24);
+            } else {
+                mp.pause();
+                play_pause_icon.setImageResource(R.drawable.ic_baseline_play_arrow_24);
+            }
+        });
+        //Clicklistener for Stopbutton
+        stop_icon.setOnClickListener(v -> {
+            mp.pause();
+            mp.seekTo(0);
+            play_pause_icon.setImageResource(R.drawable.ic_baseline_play_arrow_24);
+        });
     }
 
     //TODO: maybe fix warning  Accessing hidden method Ldalvik/system/CloseGuard --> Android Version 27?
