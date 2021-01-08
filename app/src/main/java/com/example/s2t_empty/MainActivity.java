@@ -144,8 +144,8 @@ public class MainActivity extends AppCompatActivity {
 
     private RequestBody prepareAudio() throws IOException {
         System.out.println("preparing audio");
-        InputStream is = this.getResources().openRawResource(R.raw.testo3);
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream(); //TODO maybe find better way, try to improve performance
+        InputStream is = this.getResources().openRawResource(R.raw.testo3); //TODO: use shared file from Whatsapp
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         int nRead;
         byte[] data = new byte[1024];
         while ((nRead = is.read(data, 0, data.length)) != -1) {
