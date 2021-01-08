@@ -18,7 +18,7 @@ public interface WitAPI {
     @GET("message?q=" + testString)
     Call<ResponseBody> getMessageFromTestText();
 
-    @Headers({"Authorization: Bearer " + CLIENT_ACCESS_TOKEN, "Content-Type: audio/wav"})
+    @Headers({"Authorization: Bearer " + CLIENT_ACCESS_TOKEN, "Content-Type: audio/ogg"})
     @POST("speech")
     Call<ResponseBody> getMessageFromAudio(@Body RequestBody body);
 

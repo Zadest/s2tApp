@@ -36,9 +36,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
-    //TODO: maybe move method (where?) --> find best practices
-    //TODO: fix warning  Accessing hidden method Ldalvik/system/CloseGuard
-    //TODO: maybe fix "System UI not responding"
+    //TODO: maybe fix warning  Accessing hidden method Ldalvik/system/CloseGuard --> Android Version 27?
     public void changeTextWithWit(View myView) {
         TextView myText = findViewById(R.id.textView5);
         if(state){
@@ -81,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
     private RequestBody prepareAudio() throws IOException {
         System.out.println("preparing audio");
-        InputStream is = this.getResources().openRawResource(R.raw.testo);
+        InputStream is = this.getResources().openRawResource(R.raw.testo3);
         ByteArrayOutputStream buffer = new ByteArrayOutputStream(); //TODO maybe find better way, try to improve performance
         int nRead;
         byte[] data = new byte[1024];
@@ -91,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
 
         buffer.flush();
         byte[] byteArray = buffer.toByteArray();
-        return RequestBody.create(MediaType.parse("audio/wav"), byteArray);//TODO find way to work with ogg!!!
+        return RequestBody.create(MediaType.parse("audio/ogg"), byteArray);//TODO find way to work with opus!!!
     }
 
     private WitAPI prepareRetrofit(){
