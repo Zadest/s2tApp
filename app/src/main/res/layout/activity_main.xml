@@ -24,7 +24,8 @@
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_height="?attr/actionBarSize"
-                android:layout_width="match_parent"></androidx.appcompat.widget.Toolbar>
+                android:layout_width="match_parent"
+                tools:ignore="MissingClass"></androidx.appcompat.widget.Toolbar>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -40,7 +41,7 @@
             android:layout_height="match_parent"
             tools:context=".MainActivity">
 
-            //Hier kommen Play, Pause Button hin.
+            <!--Hier kommen Play, Pause Button hin.-->
 
             <TextView
                 android:id="@+id/audio_text"
