@@ -1,11 +1,13 @@
 package com.example.s2t_empty;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
+import android.widget.ToggleButton;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,5 +34,9 @@ public class MainActivity extends AppCompatActivity {
             State = !(State);
         }
     }
+
+    NavHostFragment navHostFragment =
+            (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+    NavController navController = navHostFragment.getNavController();
 
 }

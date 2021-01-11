@@ -15,4 +15,16 @@
     <string name="extract">
         Namen/Datum extrahieren
     </string>
+    <string name="nav1">
+        Saved Texts
+    </string>
+    <string name="nav2">
+        Convert Msgs Texts
+    </string>
+    <string name="savedtexts">
+        Hier stehen alle gespeicherten Texte.
+    </string>
+    <string name="audio">
+        Hier kannst du deine Sprachnachricht abhören. Dazu gehören Play, Pause, Rewind.
+    </string>
 </resources>
