@@ -13,7 +13,6 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
@@ -22,9 +21,12 @@
                 <data android:mimeType="audio/ogg; codecs=opus" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.SEND_MULTIPLE" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="audio/ogg; codecs=opus" />
+                <action android:name="android.intent.action.SEND" />
+                <data android:mimeType="audio/mp3" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <data android:mimeType="audio/wav" />
             </intent-filter>
         </activity>
     </application>
