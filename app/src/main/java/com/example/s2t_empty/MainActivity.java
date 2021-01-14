@@ -1,13 +1,18 @@
 package com.example.s2t_empty;
 
 import android.os.Bundle;
+//import android.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.ToggleButton;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
+
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,6 +22,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //giving toolbar navi-powers
+        CollapsingToolbarLayout layout = findViewById(R.id.collapsing_toolbar_layout);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        NavController navController = navHostFragment.getNavController();
+        AppBarConfiguration appBarConfiguration =
+                new AppBarConfiguration.Builder(navController.getGraph()).build();
+        NavigationUI.setupWithNavController(layout, toolbar, navController, appBarConfiguration);
 
     }
 
@@ -35,8 +49,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    NavHostFragment navHostFragment =
-            (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-    NavController navController = navHostFragment.getNavController();
+
 
 }
+
