@@ -18,15 +18,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="audio/ogg; codecs=opus" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-                <data android:mimeType="audio/mp3" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-                <data android:mimeType="audio/wav" />
+                <data android:mimeType="audio/*" />
             </intent-filter>
         </activity>
     </application>

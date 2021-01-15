@@ -2,17 +2,19 @@ package com.example.s2t_empty;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.database.Cursor;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 
+import android.provider.MediaStore;
 import android.widget.ImageView;
 import android.content.Intent;
 import android.net.Uri;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import android.os.Environment;
 import android.view.View;
 import android.widget.TextView;
 
@@ -22,9 +24,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -57,11 +58,18 @@ public class MainActivity extends AppCompatActivity {
         MediaPlayer mp = new MediaPlayer();
         mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
+        //MediaPlayer
+        play_pause_icon = findViewById(R.id.play_pause);
+        stop_icon = findViewById(R.id.stop_play);
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             // verarbeite den Intent
             myUri = handleSendVoice(intent);
             try {
                 mp.setDataSource(getApplicationContext(), myUri);
+
+                //'create': no need to prepare MediaPlayer --> possible when using uri?
+                // play from local URI
+                mp.prepare();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -69,20 +77,6 @@ public class MainActivity extends AppCompatActivity {
             // Do something else
         }
 
-        //MediaPlayer
-        play_pause_icon = findViewById(R.id.play_pause);
-        stop_icon = findViewById(R.id.stop_play);
-
-        //'create': no need to prepare MediaPlayer --> possible when using uri?
-        //final MediaPlayer mp = MediaPlayer.create(this, R.raw.test);
-
-        // play from local URI
-
-        try {
-            mp.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
             //Click Listener for Playbutton
         play_pause_icon.setOnClickListener(v -> {
             if (!mp.isPlaying()) {
@@ -101,60 +95,61 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    //TODO: maybe fix warning  Accessing hidden method Ldalvik/system/CloseGuard --> Android Version 27?
     public void changeTextWithWit(View myView) {
         TextView myText = findViewById(R.id.textView5);
         if(state){
             WitAPI witApi = prepareRetrofit();
+            Call<ResponseBody> call = witApi.getMessageFromTestText();
             try{
-                Call<ResponseBody> call = witApi.getMessageFromAudio(prepareAudio());
-                call.enqueue(new Callback<ResponseBody>() {
-                    @Override
-                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                        try {
-                            JSONObject jsn = new JSONObject(response.body().string());
-                            myText.setText(jsn.getString("text"));
-                            state = !(state);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (NullPointerException e){
-                            e.printStackTrace();
-                        }
-                        call.cancel();
-                    }
-
-                    @Override
-                    public void onFailure(Call<ResponseBody> call, Throwable t) {
-                        System.out.println("fail!");
-                        t.printStackTrace();
-                        myText.setText("Wit does not want to play with you");
-                        call.cancel();
-                    }
-                });
+                String audioType = getIntent().getType();
+                //in order to remove additional info, like codecs
+                if(audioType.length() > 9){
+                    audioType = audioType.substring(0, 10); //TODO if possible, resolve/remove codecs
+                }
+                call = witApi.getMessageFromAudio(audioType, prepareAudio(audioType));
             }catch (IOException e){
                 e.printStackTrace();
             }
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    try {
+                        JSONObject jsn = new JSONObject(response.body().string());
+                        myText.setText(jsn.getString("text"));
+                        state = !(state);
+                    } catch (JSONException |  IOException | NullPointerException e){ //TODO: improve error handling
+                        e.printStackTrace();
+                        myText.setText(e.getMessage());
+                    }
+                    call.cancel();
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    System.out.println("fail!");
+                    t.printStackTrace();
+                    myText.setText("Wit does not want to play with you");
+                    call.cancel();
+                }
+            });
         } else {
             myText.setText("Anderer Text");
             state = !(state);
         }
     }
 
-    private RequestBody prepareAudio() throws IOException {
-        System.out.println("preparing audio");
-        InputStream is = this.getResources().openRawResource(R.raw.testo3); //TODO: use shared file from Whatsapp
+    private RequestBody prepareAudio(String audioType) throws IOException{
+        Uri uri = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
+        InputStream is = getApplicationContext().getContentResolver().openInputStream(uri);
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         int nRead;
         byte[] data = new byte[1024];
         while ((nRead = is.read(data, 0, data.length)) != -1) {
             buffer.write(data, 0, nRead);
         }
-
         buffer.flush();
         byte[] byteArray = buffer.toByteArray();
-        return RequestBody.create(MediaType.parse("audio/ogg"), byteArray);//TODO find way to work with opus!!!
+        return RequestBody.create(MediaType.parse(audioType), byteArray);
     }
 
     private WitAPI prepareRetrofit(){
@@ -163,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     Uri handleSendVoice(Intent intent){
-        Uri voiceUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+        Uri voiceUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
         if (voiceUri != null){
             System.out.println("Yay! Sound da, alles gut!");
         }
