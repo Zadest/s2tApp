@@ -1,13 +1,16 @@
 package com.example.s2t_empty;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.widget.ImageView;
 import android.content.Intent;
 import android.net.Uri;
@@ -41,9 +44,11 @@ public class MainActivity extends AppCompatActivity {
     //TODO: possible to read in shared file?
     ImageView play_pause_icon;
     ImageView stop_icon;
+    TextView file_info;
 
     private boolean state = true;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,6 +98,10 @@ public class MainActivity extends AppCompatActivity {
             mp.seekTo(0);
             play_pause_icon.setImageResource(R.drawable.ic_baseline_play_arrow_24);
         });
+
+        //display info about the current audio file
+        String currentFilename = getFileInfo(myUri);
+        file_info.setText(currentFilename);
     }
 
     public void changeTextWithWit(View myView) {
@@ -164,5 +173,33 @@ public class MainActivity extends AppCompatActivity {
         }
         return voiceUri;
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private String getFileInfo(Uri uri){
+        //Info about current audio file
+        file_info = findViewById(R.id.file_info);
+        Cursor returnCursor = getContentResolver().query(uri, null, null, null, null);
+        int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+        returnCursor.moveToFirst();
+        String name = returnCursor.getString(nameIndex);
+        returnCursor.close();
+        //file from whatsApp?
+        if (name.startsWith("PTT-")) {
+            String[] parts = name.split("-");
+            String dateOfFile = parts[1];
+            String yearOfFile = dateOfFile.substring(0, 4);
+            String monthOfFile = dateOfFile.substring(4, 6);
+            String dayOfFile = dateOfFile.substring(6, 8);
+            //String.join requires API level 26 (current min is 16)-- > better solution ?
+            String splittedDate = String.join(".", dayOfFile, monthOfFile, yearOfFile);
+            String infoString = "Sprachnachricht vom ".concat(splittedDate);
+            return infoString;
+            //audio file from other source
+        }else{
+            String infoString = "Aktuelle Datei: ".concat(name);
+            return infoString;
+        }
+    }
+
 
 }
