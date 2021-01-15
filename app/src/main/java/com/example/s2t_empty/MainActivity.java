@@ -112,13 +112,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //giving toolbar navi-powers//TODO: fix NullPointer at navHostFragment.getNavController()
-//        CollapsingToolbarLayout layout = findViewById(R.id.collapsing_toolbar_layout);
-//        Toolbar toolbar = findViewById(R.id.toolbar);
-//        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-//        NavController navController = navHostFragment.getNavController();
-//        AppBarConfiguration appBarConfiguration =
-//                new AppBarConfiguration.Builder(navController.getGraph()).build();
-//        NavigationUI.setupWithNavController(layout, toolbar, navController, appBarConfiguration);
+        CollapsingToolbarLayout layout = findViewById(R.id.collapsing_toolbar_layout);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        assert navHostFragment != null;
+        NavController navController = navHostFragment.getNavController();
+        AppBarConfiguration appBarConfiguration =
+                new AppBarConfiguration.Builder(navController.getGraph()).build();
+        NavigationUI.setupWithNavController(layout, toolbar, navController, appBarConfiguration);
 
     }
 
