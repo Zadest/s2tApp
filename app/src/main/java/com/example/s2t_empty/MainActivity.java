@@ -5,6 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.content.Intent;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 
 import android.provider.MediaStore;
@@ -16,7 +20,19 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+import androidx.appcompat.widget.Toolbar;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
+
+import com.google.android.material.appbar.CollapsingToolbarLayout;
+
+import java.io.IOException;
 
 import com.example.services.WitAPI;
 
@@ -48,8 +64,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // Get Intent ( ueberprueft die durch "Share" uebergebene Datei )
+// Get Intent ( ueberprueft die durch "Share" uebergebene Datei )
         Intent intent = getIntent();
         String action = intent.getAction();
         String type = intent.getType();
@@ -77,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
             // Do something else
         }
 
-            //Click Listener for Playbutton
+        //Click Listener for Playbutton
         play_pause_icon.setOnClickListener(v -> {
             if (!mp.isPlaying()) {
                 mp.start();
@@ -93,6 +108,16 @@ public class MainActivity extends AppCompatActivity {
             mp.seekTo(0);
             play_pause_icon.setImageResource(R.drawable.ic_baseline_play_arrow_24);
         });
+
+        //giving toolbar navi-powers
+        CollapsingToolbarLayout layout = findViewById(R.id.collapsing_toolbar_layout);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        NavController navController = navHostFragment.getNavController();
+        AppBarConfiguration appBarConfiguration =
+                new AppBarConfiguration.Builder(navController.getGraph()).build();
+        NavigationUI.setupWithNavController(layout, toolbar, navController, appBarConfiguration);
+
     }
 
     public void changeTextWithWit(View myView) {
