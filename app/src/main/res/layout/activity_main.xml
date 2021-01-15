@@ -107,6 +107,7 @@
         android:layout_marginBottom="8dp"
         android:max="100"
         android:progress="0"
+        android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/button_speechtotext"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

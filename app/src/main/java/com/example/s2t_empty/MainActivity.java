@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.appcompat.widget.Toolbar;
 
@@ -64,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 // Get Intent ( ueberprueft die durch "Share" uebergebene Datei )
         Intent intent = getIntent();
         String action = intent.getAction();
@@ -109,18 +111,20 @@ public class MainActivity extends AppCompatActivity {
             play_pause_icon.setImageResource(R.drawable.ic_baseline_play_arrow_24);
         });
 
-        //giving toolbar navi-powers
-        CollapsingToolbarLayout layout = findViewById(R.id.collapsing_toolbar_layout);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-        NavController navController = navHostFragment.getNavController();
-        AppBarConfiguration appBarConfiguration =
-                new AppBarConfiguration.Builder(navController.getGraph()).build();
-        NavigationUI.setupWithNavController(layout, toolbar, navController, appBarConfiguration);
+        //giving toolbar navi-powers//TODO: fix NullPointer at navHostFragment.getNavController()
+//        CollapsingToolbarLayout layout = findViewById(R.id.collapsing_toolbar_layout);
+//        Toolbar toolbar = findViewById(R.id.toolbar);
+//        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+//        NavController navController = navHostFragment.getNavController();
+//        AppBarConfiguration appBarConfiguration =
+//                new AppBarConfiguration.Builder(navController.getGraph()).build();
+//        NavigationUI.setupWithNavController(layout, toolbar, navController, appBarConfiguration);
 
     }
 
     public void changeTextWithWit(View myView) {
+        ProgressBar progress = findViewById(R.id.progressBar);
+        progress.setVisibility(View.VISIBLE);
         TextView myText = findViewById(R.id.textView5);
         if(state){
             WitAPI witApi = prepareRetrofit();
@@ -140,9 +144,11 @@ public class MainActivity extends AppCompatActivity {
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     try {
                         JSONObject jsn = new JSONObject(response.body().string());
-                        myText.setText(jsn.getString("text"));
+                        progress.setVisibility(View.INVISIBLE);
+                        myText.setText(jsn.getString("text")); //TODO: show text completely, layout cuts parts
                         state = !(state);
                     } catch (JSONException |  IOException | NullPointerException e){ //TODO: improve error handling
+                        progress.setVisibility(View.INVISIBLE);
                         e.printStackTrace();
                         myText.setText(e.getMessage());
                     }
@@ -152,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
                     System.out.println("fail!");
+                    progress.setVisibility(View.INVISIBLE);
                     t.printStackTrace();
                     myText.setText("Wit does not want to play with you");
                     call.cancel();
@@ -160,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             myText.setText("Anderer Text");
             state = !(state);
+            progress.setVisibility(View.INVISIBLE);
         }
     }
 
