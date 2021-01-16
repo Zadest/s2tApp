@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
         MediaPlayer mp = new MediaPlayer();
         mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        file_info = findViewById(R.id.file_info);
 
         //MediaPlayer
         play_pause_icon = findViewById(R.id.play_pause);
@@ -75,11 +76,16 @@ public class MainActivity extends AppCompatActivity {
                 //'create': no need to prepare MediaPlayer --> possible when using uri?
                 // play from local URI
                 mp.prepare();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+            //display info about the current audio file
+            String currentFilename = getFileInfo(myUri);
+            file_info.setText(currentFilename);
         } else {
-            // Do something else
+            file_info.setText("Kein File geteilt");
         }
 
             //Click Listener for Playbutton
@@ -99,9 +105,6 @@ public class MainActivity extends AppCompatActivity {
             play_pause_icon.setImageResource(R.drawable.ic_baseline_play_arrow_24);
         });
 
-        //display info about the current audio file
-        String currentFilename = getFileInfo(myUri);
-        file_info.setText(currentFilename);
     }
 
     public void changeTextWithWit(View myView) {
