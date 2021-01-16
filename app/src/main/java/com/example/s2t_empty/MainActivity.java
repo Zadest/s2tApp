@@ -63,6 +63,10 @@ public class MainActivity extends AppCompatActivity {
     ImageView stop_icon;
     TextView file_info;
 
+    Button speechtotext;
+    Button namedentity;
+    Button savetext;
+
     private boolean state = true;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -79,11 +83,23 @@ public class MainActivity extends AppCompatActivity {
 
         MediaPlayer mp = new MediaPlayer();
         mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
         file_info = findViewById(R.id.file_info);
 
         //MediaPlayer
         play_pause_icon = findViewById(R.id.play_pause);
         stop_icon = findViewById(R.id.stop_play);
+
+        //Buttons
+        speechtotext = findViewById(R.id.button_speechtotext);
+        //TODO: add functionality to these buttons
+        namedentity = findViewById(R.id.button_namedentity);
+        savetext = findViewById(R.id.button_savetext);
+
+        //disable buttons that need text for now
+        namedentity.setEnabled(false);
+        savetext.setEnabled(false);
+
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             // verarbeite den Intent
             myUri = handleSendVoice(intent);
@@ -100,8 +116,14 @@ public class MainActivity extends AppCompatActivity {
             //display info about the current audio file
             String currentFilename = getFileInfo(myUri);
             file_info.setText(currentFilename);
+
+            //enable speechtotext button
+            speechtotext.setEnabled(true);
         } else {
             file_info.setText("Kein File geteilt");
+
+            //disable speechtotext button
+            speechtotext.setEnabled(false);
         }
 
             //Click Listener for Playbutton
@@ -157,6 +179,8 @@ public class MainActivity extends AppCompatActivity {
                         JSONObject jsn = new JSONObject(response.body().string());
                         progress.setVisibility(View.INVISIBLE);
                         myText.setText(jsn.getString("text")); //TODO: show text completely, layout cuts parts
+                        namedentity.setEnabled(true);
+                        savetext.setEnabled(true);
                         state = !(state);
                     } catch (JSONException |  IOException | NullPointerException e){ //TODO: improve error handling
                         progress.setVisibility(View.INVISIBLE);
