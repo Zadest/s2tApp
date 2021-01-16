@@ -7,33 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".SavedTexts">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
-        android:layout_width="match_parent"
-        android:layout_height="192dp"
-        app:layout_constraintBottom_toTopOf="@+id/infomessagest"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            tools:ignore="MissingClass"></androidx.appcompat.widget.Toolbar>
-
-        <com.google.android.material.appbar.CollapsingToolbarLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:contentScrim="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
-
-            app:toolbarId="@+id/collapsing_toolbar_layout">
-
-
-        </com.google.android.material.appbar.CollapsingToolbarLayout>
-    </com.google.android.material.appbar.AppBarLayout>
-
     <TextView
         android:id="@+id/infomessagest"
         android:layout_width="wrap_content"
