@@ -5,10 +5,10 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
+//import androidx.navigation.NavController;
+//import androidx.navigation.fragment.NavHostFragment;
+//import androidx.navigation.ui.AppBarConfiguration;
+//import androidx.navigation.ui.NavigationUI;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,14 +23,15 @@ public class SavedTexts extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //giving toolbar navi-powers
-        CollapsingToolbarLayout layout = findViewById(R.id.collapsing_toolbar_layout);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-        NavController navController = navHostFragment.getNavController();
-        AppBarConfiguration appBarConfiguration =
-                new AppBarConfiguration.Builder(navController.getGraph()).build();
-        NavigationUI.setupWithNavController(layout, toolbar, navController, appBarConfiguration);
+        //giving toolbar navi-powers//TODO: fix NullPointer at navHostFragment.getNavController()
+        //CollapsingToolbarLayout layout = findViewById(R.id.collapsing_toolbar_layout);
+        //Toolbar toolbar = findViewById(R.id.toolbar);
+        //NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        //assert navHostFragment != null;
+        //NavController navController = navHostFragment.getNavController();
+        //AppBarConfiguration appBarConfiguration =
+        //      new AppBarConfiguration.Builder(navController.getGraph()).build();
+        //NavigationUI.setupWithNavController(layout, toolbar, navController, appBarConfiguration);
     }
 
     //@Override

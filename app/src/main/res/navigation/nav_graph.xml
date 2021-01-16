@@ -1,28 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+<navigation> <!--xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/mainActivity">
+    app:startDestination="@+id/mainActivity"> -->
 
+    <!--
+        <fragment
+            android:id="@+id/mainActivity"
+            android:name="com.example.s2t_empty.MainActivity"
+            android:label="activity_main"
+            tools:layout="@layout/activity_main" >
+            <action
+                android:id="@+id/action_mainActivity_to_savedTexts"
+                app:destination="@id/savedTexts" />
+        </fragment>
+        <fragment
+            android:id="@+id/savedTexts"
+            android:name="com.example.s2t_empty.SavedTexts"
+            android:label="fragment_saved_texts"
+            tools:layout="@layout/fragment_saved_texts" >
+            <action
+                android:id="@+id/action_savedTexts_to_mainActivity2"
+                app:destination="@+id/mainActivity" />
+        </fragment>
 
-    <fragment
-        android:id="@+id/mainActivity"
-        android:name="com.example.s2t_empty.MainActivity"
-        android:label="activity_main"
-        tools:layout="@layout/activity_main" >
-        <action
-            android:id="@+id/action_mainActivity_to_savedTexts"
-            app:destination="@id/savedTexts" />
-    </fragment>
-    <fragment
-        android:id="@+id/savedTexts"
-        android:name="com.example.s2t_empty.SavedTexts"
-        android:label="fragment_saved_texts"
-        tools:layout="@layout/fragment_saved_texts" >
-        <action
-            android:id="@+id/action_savedTexts_to_mainActivity2"
-            app:destination="@id/mainActivity" />
-    </fragment>
-
+    -->
 </navigation>

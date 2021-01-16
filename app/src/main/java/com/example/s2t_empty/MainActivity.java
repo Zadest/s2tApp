@@ -26,10 +26,10 @@ import android.widget.TextView;
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
+//import androidx.navigation.NavController;
+//import androidx.navigation.fragment.NavHostFragment;
+//import androidx.navigation.ui.AppBarConfiguration;
+//import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
@@ -112,14 +112,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //giving toolbar navi-powers//TODO: fix NullPointer at navHostFragment.getNavController()
-        CollapsingToolbarLayout layout = findViewById(R.id.collapsing_toolbar_layout);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-        assert navHostFragment != null;
-        NavController navController = navHostFragment.getNavController();
-        AppBarConfiguration appBarConfiguration =
-                new AppBarConfiguration.Builder(navController.getGraph()).build();
-        NavigationUI.setupWithNavController(layout, toolbar, navController, appBarConfiguration);
+        //CollapsingToolbarLayout layout = findViewById(R.id.collapsing_toolbar_layout);
+        //Toolbar toolbar = findViewById(R.id.toolbar);
+        //NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        //assert navHostFragment != null;
+        //NavController navController = navHostFragment.getNavController();
+        //AppBarConfiguration appBarConfiguration =
+          //      new AppBarConfiguration.Builder(navController.getGraph()).build();
+        //NavigationUI.setupWithNavController(layout, toolbar, navController, appBarConfiguration);
 
     }
 

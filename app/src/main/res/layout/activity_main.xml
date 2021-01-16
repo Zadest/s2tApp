@@ -28,7 +28,7 @@
                 tools:ignore="MissingClass">
             </androidx.appcompat.widget.Toolbar>
 
-            <androidx.fragment.app.FragmentContainerView
+            <!--<androidx.fragment.app.FragmentContainerView
                 android:id="@+id/nav_host_fragment"
                 android:name="androidx.navigation.fragment.NavHostFragment"
                 android:layout_width="0dp"
@@ -39,7 +39,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
 
                 app:defaultNavHost="true"
-                app:navGraph="@navigation/nav_graph" />
+                app:navGraph="@navigation/nav_graph" /> -->
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
