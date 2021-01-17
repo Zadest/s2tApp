@@ -23,15 +23,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //giving toolbar navi-powers
-        CollapsingToolbarLayout layout = findViewById(R.id.collapsing_toolbar_layout);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-        NavController navController = navHostFragment.getNavController();
-        AppBarConfiguration appBarConfiguration =
-                new AppBarConfiguration.Builder(navController.getGraph()).build();
-        NavigationUI.setupWithNavController(layout, toolbar, navController, appBarConfiguration);
-
     }
 
     public void changeText(View myView) {
