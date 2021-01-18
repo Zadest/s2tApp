@@ -56,9 +56,6 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
-    //TODO: read in Whatsapp-Filenames (with special characters)
-    //TODO: foward/rewind?
-    //TODO: possible to read in shared file?
     ImageView play_pause_icon;
     ImageView stop_icon;
     TextView file_info;
@@ -104,10 +101,8 @@ public class MainActivity extends AppCompatActivity {
             // verarbeite den Intent
             myUri = handleSendVoice(intent);
             try {
+                //prepare MediaPlayer
                 mp.setDataSource(getApplicationContext(), myUri);
-
-                //'create': no need to prepare MediaPlayer --> possible when using uri?
-                // play from local URI
                 mp.prepare();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -120,13 +115,12 @@ public class MainActivity extends AppCompatActivity {
             //enable speechtotext button
             speechtotext.setEnabled(true);
         } else {
-            file_info.setText("Kein File geteilt");
-
+            file_info.setText(R.string.no_file);
             //disable speechtotext button
             speechtotext.setEnabled(false);
         }
 
-            //Click Listener for Playbutton
+        //Click Listener for Playbutton
         play_pause_icon.setOnClickListener(v -> {
             if (!mp.isPlaying()) {
                 mp.start();
@@ -136,12 +130,20 @@ public class MainActivity extends AppCompatActivity {
                 play_pause_icon.setImageResource(R.drawable.ic_baseline_play_arrow_24);
             }
         });
+
         //Clicklistener for Stopbutton
         stop_icon.setOnClickListener(v -> {
             mp.pause();
             mp.seekTo(0);
             play_pause_icon.setImageResource(R.drawable.ic_baseline_play_arrow_24);
         });
+
+        //change play-button when audiofile ended
+        mp.setOnCompletionListener(mediaPlayer -> {
+            // Do something when media player end playing
+            play_pause_icon.setImageResource(R.drawable.ic_baseline_play_arrow_24);
+        });
+
 
         //giving toolbar navi-powers//TODO: fix NullPointer at navHostFragment.getNavController()
         //CollapsingToolbarLayout layout = findViewById(R.id.collapsing_toolbar_layout);
@@ -195,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
                     System.out.println("fail!");
                     progress.setVisibility(View.INVISIBLE);
                     t.printStackTrace();
-                    myText.setText("Wit does not want to play with you");
+                    myText.setText(R.string.wit_error);
                     call.cancel();
                 }
             });
