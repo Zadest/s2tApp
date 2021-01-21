@@ -16,25 +16,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 public class SavedTexts extends AppCompatActivity {
-    public class SavedTexts2 extends FragmentActivity {
-
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-
-            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-            AppBarConfiguration appBarConfiguration =
-                    new AppBarConfiguration.Builder(navController.getGraph()).build();
-            Toolbar toolbar = findViewById(R.id.toolbar);
-            NavigationUI.setupWithNavController(
-                    toolbar, navController, appBarConfiguration);
-        }
-
-        //@Override
+            //@Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             // Inflate the layout for this fragment
             return inflater.inflate(R.layout.fragment_saved_texts, container, false);
         }
     }
-}

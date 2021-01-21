@@ -16,22 +16,8 @@ import androidx.navigation.ui.NavigationUI;
 
 
 public class MainActivity extends AppCompatActivity {
-    public class MainActivity2 extends FragmentActivity {
 
-        private boolean State = false;
-
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_main);
-
-            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-            AppBarConfiguration appBarConfiguration =
-                    new AppBarConfiguration.Builder(navController.getGraph()).build();
-            Toolbar toolbar = findViewById(R.id.toolbar);
-            NavigationUI.setupWithNavController(
-                    toolbar, navController, appBarConfiguration);
-        }
+    private boolean State = false;
 
         public void changeText(View myView) {
             System.out.println("!Test");
@@ -46,8 +32,4 @@ public class MainActivity extends AppCompatActivity {
                 State = !(State);
             }
         }
-
-
-    }
 }
-
