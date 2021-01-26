@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             //Prepare Audio for wit.ai (opus -> mp3)
-            File CopyOriginal = new File(getInternalDirectory() + "/original.opus");
+            File CopyOriginal = new File(getInternalDirectory() + "/current_audio.mp3");
             String FileIn = CopyOriginal.getPath();
             String FileOut = getInternalDirectory() + "/converted.mp3";
             //Copy content from Uri to File "original.opus"
@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             //Convert "original.opus" to "converted.mp3"
-            ConvertFromOpusToMp3(FileIn, FileOut);
+            //ConvertFromOpusToMp3(FileIn, FileOut);
 
             //display info about the current audio file
             String currentFilename = getFileInfo(myUri);
