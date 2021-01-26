@@ -27,4 +27,10 @@
     <string name="audio">
         Hier kannst du deine Sprachnachricht abhören. Dazu gehören Play, Pause, Rewind.
     </string>
+    <string name="cancel">
+        Abbrechen
+    </string>
+    <string name="entername">
+        Von wem war diese Sprachnachricht?
+    </string>
 </resources>
