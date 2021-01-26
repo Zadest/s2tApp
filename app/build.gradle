@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId "com.example.s2t_empty"
         minSdkVersion 21 // 21 für nav
-        targetSdkVersion 30
+        targetSdkVersion 28 //28 for ffmpeg (28+: error=13, permission denied)
         versionCode 1
         versionName "1.0"
 
@@ -31,6 +31,7 @@ android {
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'nl.bravobit:android-ffmpeg:1.1.7'
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'

@@ -3,6 +3,7 @@ package com.example.s2t_empty;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -15,12 +16,15 @@ import android.os.Bundle;
 
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.util.Log;
 import android.widget.ImageView;
 import android.content.Intent;
 import android.net.Uri;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import android.view.View;
 import android.widget.Button;
@@ -45,8 +49,11 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 
+import nl.bravobit.ffmpeg.ExecuteBinaryResponseHandler;
+import nl.bravobit.ffmpeg.FFmpeg;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -108,6 +115,19 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
+            //Prepare Audio for wit.ai (opus -> mp3)
+            File CopyOriginal = new File(getInternalDirectory() + "/original.opus");
+            String FileIn = CopyOriginal.getPath();
+            String FileOut = getInternalDirectory() + "/converted.mp3";
+            //Copy content from Uri to File "original.opus"
+            try {
+                copyInputStreamToFile(myUri, CopyOriginal);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            //Convert "original.opus" to "converted.mp3"
+            ConvertFromOpusToMp3(FileIn, FileOut);
+
             //display info about the current audio file
             String currentFilename = getFileInfo(myUri);
             file_info.setText(currentFilename);
@@ -152,9 +172,17 @@ public class MainActivity extends AppCompatActivity {
         //assert navHostFragment != null;
         //NavController navController = navHostFragment.getNavController();
         //AppBarConfiguration appBarConfiguration =
-          //      new AppBarConfiguration.Builder(navController.getGraph()).build();
+        //      new AppBarConfiguration.Builder(navController.getGraph()).build();
         //NavigationUI.setupWithNavController(layout, toolbar, navController, appBarConfiguration);
 
+        //ffmpeg -i audio.ogg -acodec libmp3lame audio.mp3
+        //String FileIn = myUri.getEncodedPath();
+
+        //infoffmpeg.setText(FileIn);
+    }
+
+    private String getInternalDirectory(){
+        return getApplicationContext().getFilesDir().getAbsolutePath();
     }
 
     public void changeTextWithWit(View myView) {
@@ -261,6 +289,58 @@ public class MainActivity extends AppCompatActivity {
             return infoString;
         }
     }
+    private void copyInputStreamToFile(Uri uri, File file) throws FileNotFoundException {
+     InputStream ins = getContentResolver().openInputStream(uri);
+        OutputStream out = null;
 
+        try {
+            out = new FileOutputStream(file);
+            byte[] buf = new byte[1024];
+            int len;
+            while((len=ins.read(buf))>0){
+                out.write(buf,0,len);
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            // Ensure that the InputStreams are closed even if there's an exception.
+            try {
+                if ( out != null ) {
+                    out.close();
+                }
+
+                ins.close();
+            }
+            catch ( IOException e ) {
+                e.printStackTrace();
+            }
+        }
+    }
+    public void ConvertFromOpusToMp3(String In, String Out){
+        FFmpeg ffmpeg = FFmpeg.getInstance(getApplicationContext());
+        //convert sent file from ogg to mp3
+        String[] cmd = new String[]{"-i", In, "-acodec", "libmp3lame", Out};
+        ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
+            public void onStart() {
+                Log.w(null, "started");
+            }
+
+            public void onProgress(String message) {
+                Log.w(null, message);
+            }
+
+            public void onFailure(String message) {
+                Log.w(null, message);
+            }
+
+            public void onFinish() {
+                Log.w(null, "finished");
+                //delete input file after conversion
+                new File(In).delete();
+            }
+        });
+    }
 
 }
