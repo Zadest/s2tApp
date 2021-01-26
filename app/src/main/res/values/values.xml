@@ -31,6 +31,9 @@
         Abbrechen
     </string>
     <string name="entername">
-        Von wem war diese Sprachnachricht?
+        Name der sprechenden Person
+    </string>
+    <string name="savingpopup">
+        Text speichern
     </string>
 </resources>

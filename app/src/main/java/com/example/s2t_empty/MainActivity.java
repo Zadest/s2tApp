@@ -2,8 +2,10 @@ package com.example.s2t_empty;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -18,6 +20,7 @@ import android.os.Bundle;
 
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.content.Intent;
 import android.net.Uri;
@@ -34,6 +37,7 @@ import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 //import androidx.navigation.NavController;
 //import androidx.navigation.fragment.NavHostFragment;
 //import androidx.navigation.ui.AppBarConfiguration;
@@ -60,7 +64,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SavingPopup.SavingPopupListener{
     ImageView play_pause_icon;
     ImageView stop_icon;
     TextView file_info;
@@ -105,8 +109,13 @@ public class MainActivity extends AppCompatActivity {
         savetext = findViewById(R.id.button_savetext);
 
         //disable buttons that need text for now
-        namedentity.setEnabled(false);
-        savetext.setEnabled(false);
+//        namedentity.setEnabled(false);
+//        savetext.setEnabled(false);
+
+        namedentity.setOnClickListener(v ->{
+            SharedPreferences sp = getSharedPreferences(String.valueOf(R.string.sp_name), Context.MODE_PRIVATE);
+            sp.getAll();
+        });
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             // verarbeite den Intent
@@ -172,8 +181,10 @@ public class MainActivity extends AppCompatActivity {
         //show that text is loading
         ProgressBar progress = findViewById(R.id.progressBar);
         progress.setVisibility(View.VISIBLE);
+
         //prepare wit call
-        WitAPI witApi = prepareRetrofit();
+        Retrofit retrofit = new Retrofit.Builder().baseUrl("https://api.wit.ai/").build();
+        WitAPI witApi = retrofit.create(WitAPI.class);
         Call<ResponseBody> call = witApi.getMessageFromTestText();
         try{
             String audioType = getIntent().getType();
@@ -185,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
         }catch (IOException e){
             e.printStackTrace();
         }
+
         //handle call
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -215,28 +227,45 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    //TODO: use Alertdialog instead:
-    //https://developer.android.com/guide/topics/ui/dialogs
+    //open popup to save text
     public void openSavingPopup(View myView){
-        Intent i = new Intent(getApplicationContext(), SavingPopup.class);
-        i.putExtra("text", myText.getText().toString());
-        i.putExtra("fileName", fileName);
-        startActivityForResult(i, 0);
+        DialogFragment newFragment = new SavingPopup();
+        newFragment.show(getSupportFragmentManager(), "savingPopup");
     }
 
+    //handle saving from popup
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode == 1 && data != null){
-            Toast.makeText(getApplicationContext(), "Nachricht von " + data.getStringExtra("name") + "gespeichert", Toast.LENGTH_SHORT).show();
+    public void onDialogPositiveClick(DialogFragment dialogFragment) {
+        //extract name that was entered in dialog
+        String personName = "";
+        Dialog dialog = dialogFragment.getDialog();
+        if(dialog != null){
+            personName =((EditText) dialog.findViewById(R.id.editTextTextPersonName)).getText().toString();
         }
-    }
 
-    //just for testing
-    public void showSavedText(View myView){
-        SharedPreferences sp = getApplicationContext().getSharedPreferences("MySavedTexts", Context.MODE_PRIVATE);
-        String text = sp.getString("test123", "");
-        this.myText.setText(text);
+        //initialize sp
+        SharedPreferences sp = getSharedPreferences(String.valueOf(R.string.sp_name), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+
+        //generate key to save text with
+        //TODO: find other fallback solution
+        String key = "savedText1";
+        if(fileName != null && !fileName.isEmpty() && !personName.isEmpty()){
+            //TODO: structure key in a cleverer way?
+            key = fileName + "_" + personName;
+        }
+
+        //save text in sp
+        //TODO: check and handle case that key already exists in sp. atm: content gets overwritten!
+        editor.putString(key, myText.getText().toString());
+        editor.apply();
+
+        //mirror success to user
+        String toastMessage = "Nachricht gespeichert";
+        if(!personName.isEmpty()){
+            toastMessage = "Nachricht von " + personName + " gespeichert";
+        }
+        Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
     }
 
     private RequestBody prepareAudio(String audioType) throws IOException{
@@ -251,11 +280,6 @@ public class MainActivity extends AppCompatActivity {
         buffer.flush();
         byte[] byteArray = buffer.toByteArray();
         return RequestBody.create(MediaType.parse(audioType), byteArray);
-    }
-
-    private WitAPI prepareRetrofit(){
-        Retrofit retrofit = new Retrofit.Builder().baseUrl("https://api.wit.ai/").build();
-        return retrofit.create(WitAPI.class);
     }
 
     Uri handleSendVoice(Intent intent){
@@ -292,6 +316,5 @@ public class MainActivity extends AppCompatActivity {
             return infoString;
         }
     }
-
 
 }
