@@ -15,8 +15,6 @@ import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.widget.ImageView;
-import android.content.Intent;
-import android.net.Uri;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,7 +45,6 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 
 //import nl.bravobit.ffmpeg.ExecuteBinaryResponseHandler;
 //import nl.bravobit.ffmpeg.FFmpeg;
@@ -122,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-            //Convert "original.opus" to "converted.mp3"
+            //Convert ".opus" to ".mp3" with ffmpeg
             //ConvertFromOpusToMp3(FileIn, FileOut);
 
             //display info about the current audio file
