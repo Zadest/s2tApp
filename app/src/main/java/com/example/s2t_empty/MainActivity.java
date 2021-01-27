@@ -8,13 +8,10 @@ import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.content.Intent;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
-import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.widget.ImageView;
@@ -52,8 +49,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 
-import nl.bravobit.ffmpeg.ExecuteBinaryResponseHandler;
-import nl.bravobit.ffmpeg.FFmpeg;
+//import nl.bravobit.ffmpeg.ExecuteBinaryResponseHandler;
+//import nl.bravobit.ffmpeg.FFmpeg;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -115,13 +112,13 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            //Prepare Audio for wit.ai (opus -> mp3)
-            File CopyOriginal = new File(getInternalDirectory() + "/current_audio.mp3");
-            String FileIn = CopyOriginal.getPath();
-            String FileOut = getInternalDirectory() + "/converted.mp3";
+            //Prepare Audio for wit.ai (convert from opus to mp3)
+            File CopyFile = new File(getInternalDirectory() + "/current_audio.mp3");
+            //String FileIn = CopyOriginal.getPath();
+            //String FileOut = getInternalDirectory() + "/converted.mp3";
             //Copy content from Uri to File "original.opus"
             try {
-                copyInputStreamToFile(myUri, CopyOriginal);
+                copyInputStreamToFile(myUri, CopyFile);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -175,10 +172,6 @@ public class MainActivity extends AppCompatActivity {
         //      new AppBarConfiguration.Builder(navController.getGraph()).build();
         //NavigationUI.setupWithNavController(layout, toolbar, navController, appBarConfiguration);
 
-        //ffmpeg -i audio.ogg -acodec libmp3lame audio.mp3
-        //String FileIn = myUri.getEncodedPath();
-
-        //infoffmpeg.setText(FileIn);
     }
 
     private String getInternalDirectory(){
@@ -318,29 +311,31 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-    public void ConvertFromOpusToMp3(String In, String Out){
-        FFmpeg ffmpeg = FFmpeg.getInstance(getApplicationContext());
+
+    //public void ConvertFromOpusToMp3(String In, String Out){
+    //    FFmpeg ffmpeg = FFmpeg.getInstance(getApplicationContext());
         //convert sent file from ogg to mp3
-        String[] cmd = new String[]{"-i", In, "-acodec", "libmp3lame", Out};
-        ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
-            public void onStart() {
-                Log.w(null, "started");
-            }
+        //ffmpeg -i audio.ogg -acodec libmp3lame audio.mp3
+    //    String[] cmd = new String[]{"-i", In, "-acodec", "libmp3lame", Out};
+    //    ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
+    //        public void onStart() {
+    //            Log.w(null, "started");
+    //        }
 
-            public void onProgress(String message) {
-                Log.w(null, message);
-            }
+    //        public void onProgress(String message) {
+    //            Log.w(null, message);
+    //        }
 
-            public void onFailure(String message) {
-                Log.w(null, message);
-            }
+    //        public void onFailure(String message) {
+    //            Log.w(null, message);
+    //        }
 
-            public void onFinish() {
-                Log.w(null, "finished");
+    //        public void onFinish() {
+    //            Log.w(null, "finished");
                 //delete input file after conversion
-                new File(In).delete();
-            }
-        });
-    }
+    //            new File(In).delete();
+    //        }
+    //    });
+    //}
 
 }
