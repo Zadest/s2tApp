@@ -209,6 +209,7 @@ public class MainActivity extends AppCompatActivity {
                     myText.setText(e.getMessage());
                 }
                 call.cancel();
+                new File(getInternalDirectory() + "/converted.mp3").delete();
                 // DELETE MP3
             }
 
@@ -219,10 +220,13 @@ public class MainActivity extends AppCompatActivity {
                 t.printStackTrace();
                 myText.setText(R.string.wit_error);
                 call.cancel();
+                new File(getInternalDirectory() + "/converted.mp3").delete();
                 //DELETE Mp3
             }
         });
-        //new File(getInternalDirectory() + "/converted.mp3").delete();
+        //
+        //
+        // new File(getInternalDirectory() + "/converted.mp3").delete();
     }
 
     private RequestBody prepareAudio() throws IOException{
