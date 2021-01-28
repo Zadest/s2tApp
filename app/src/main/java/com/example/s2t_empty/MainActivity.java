@@ -180,51 +180,50 @@ public class MainActivity extends AppCompatActivity {
         ProgressBar progress = findViewById(R.id.progressBar);
         progress.setVisibility(View.VISIBLE);
         TextView myText = findViewById(R.id.textView5);
-        if(state){
-            WitAPI witApi = prepareRetrofit();
-            Call<ResponseBody> call = witApi.getMessageFromTestText();
-            try{
-                String audioType = getIntent().getType();
-                //in order to remove additional info, like codecs
-                if(audioType.length() > 9){
-                    audioType = audioType.substring(0, 10); //TODO if possible, resolve/remove codecs
-                }
-                call = witApi.getMessageFromAudio("audio/mpeg3", prepareAudio());
-            }catch (IOException e){
-                e.printStackTrace();
-            }
-            call.enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    try {
-                        JSONObject jsn = new JSONObject(response.body().string());
-                        progress.setVisibility(View.INVISIBLE);
-                        myText.setText(jsn.getString("text")); //TODO: show text completely, layout cuts parts
-                        namedentity.setEnabled(true);
-                        savetext.setEnabled(true);
-                        state = !(state);
-                    } catch (JSONException |  IOException | NullPointerException e){ //TODO: improve error handling
-                        progress.setVisibility(View.INVISIBLE);
-                        e.printStackTrace();
-                        myText.setText(e.getMessage());
-                    }
-                    call.cancel();
-                }
 
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    System.out.println("fail!");
-                    progress.setVisibility(View.INVISIBLE);
-                    t.printStackTrace();
-                    myText.setText(R.string.wit_error);
-                    call.cancel();
-                }
-            });
-        } else {
-            myText.setText("Anderer Text");
-            state = !(state);
-            progress.setVisibility(View.INVISIBLE);
+        WitAPI witApi = prepareRetrofit();
+        Call<ResponseBody> call = witApi.getMessageFromTestText();
+        try{
+            String audioType = getIntent().getType();
+            //in order to remove additional info, like codecs
+            if(audioType.length() > 9){
+                audioType = audioType.substring(0, 10); //TODO if possible, resolve/remove codecs
+            }
+            call = witApi.getMessageFromAudio("audio/mpeg3", prepareAudio());
+        }catch (IOException e){
+            e.printStackTrace();
         }
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    JSONObject jsn = new JSONObject(response.body().string());
+                    progress.setVisibility(View.INVISIBLE);
+                    myText.setText(jsn.getString("text")); //TODO: show text completely, layout cuts parts
+                    namedentity.setEnabled(true);
+                    savetext.setEnabled(true);
+                    state = !(state);
+                } catch (JSONException |  IOException | NullPointerException e){ //TODO: improve error handling
+                    progress.setVisibility(View.INVISIBLE);
+                    e.printStackTrace();
+                    myText.setText(e.getMessage());
+                }
+                call.cancel();
+                // DELETE MP3
+                new File(getInternalDirectory() + "/converted.mp3").delete();
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                System.out.println("fail!");
+                progress.setVisibility(View.INVISIBLE);
+                t.printStackTrace();
+                myText.setText(R.string.wit_error);
+                call.cancel();
+                //DELETE Mp3
+                new File(getInternalDirectory() + "/converted.mp3").delete();
+            }
+        });
     }
 
     private RequestBody prepareAudio() throws IOException{
