@@ -3,6 +3,7 @@ package com.example.s2t_empty;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.media.AudioManager;
@@ -46,8 +47,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-//import nl.bravobit.ffmpeg.ExecuteBinaryResponseHandler;
-//import nl.bravobit.ffmpeg.FFmpeg;
+import nl.bravobit.ffmpeg.ExecuteBinaryResponseHandler;
+import nl.bravobit.ffmpeg.FFmpeg;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -110,9 +111,9 @@ public class MainActivity extends AppCompatActivity {
             }
 
             //Prepare Audio for wit.ai (convert from opus to mp3)
-            File CopyFile = new File(getInternalDirectory() + "/current_audio.mp3");
-            //String FileIn = CopyOriginal.getPath();
-            //String FileOut = getInternalDirectory() + "/converted.mp3";
+            File CopyFile = new File(getInternalDirectory() + "/current_audio.opus");
+            String FileIn = CopyFile.getPath();
+            String FileOut = getInternalDirectory() + "/converted.mp3";
             //Copy content from Uri to File "original.opus"
             try {
                 copyInputStreamToFile(myUri, CopyFile);
@@ -120,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             //Convert ".opus" to ".mp3" with ffmpeg
-            //ConvertFromOpusToMp3(FileIn, FileOut);
+            ConvertFromOpusToMp3(FileIn, FileOut);
 
             //display info about the current audio file
             String currentFilename = getFileInfo(myUri);
@@ -228,6 +229,8 @@ public class MainActivity extends AppCompatActivity {
 
     private RequestBody prepareAudio(String audioType) throws IOException{
         Uri uri = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
+        //Uri uri = Uri.fromFile(new File(getInternalDirectory() + "/converted.mp3"));
+        //Uri uri = Uri.parse("file://" + getInternalDirectory() + "/converted.mp3");
         InputStream is = getApplicationContext().getContentResolver().openInputStream(uri);
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         int nRead;
@@ -237,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
         }
         buffer.flush();
         byte[] byteArray = buffer.toByteArray();
-        return RequestBody.create(MediaType.parse(audioType), byteArray);
+        return RequestBody.create(MediaType.parse("audio/mp3"), byteArray);
     }
 
     private WitAPI prepareRetrofit(){
@@ -309,30 +312,30 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //public void ConvertFromOpusToMp3(String In, String Out){
-    //    FFmpeg ffmpeg = FFmpeg.getInstance(getApplicationContext());
+    public void ConvertFromOpusToMp3(String In, String Out){
+        FFmpeg ffmpeg = FFmpeg.getInstance(getApplicationContext());
         //convert sent file from ogg to mp3
-        //ffmpeg -i audio.ogg -acodec libmp3lame audio.mp3
-    //    String[] cmd = new String[]{"-i", In, "-acodec", "libmp3lame", Out};
-    //    ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
-    //        public void onStart() {
-    //            Log.w(null, "started");
-    //        }
+      //ffmpeg -i audio.ogg -acodec libmp3lame audio.mp3
+        String[] cmd = new String[]{"-i", In, "-acodec", "libmp3lame", Out};
+        ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
+            public void onStart() {
+                Log.w(null, "started");
+            }
 
-    //        public void onProgress(String message) {
-    //            Log.w(null, message);
-    //        }
+            public void onProgress(String message) {
+                Log.w(null, message);
+            }
 
-    //        public void onFailure(String message) {
-    //            Log.w(null, message);
-    //        }
+            public void onFailure(String message) {
+                Log.w(null, message);
+            }
 
-    //        public void onFinish() {
-    //            Log.w(null, "finished");
-                //delete input file after conversion
-    //            new File(In).delete();
-    //        }
-    //    });
-    //}
+            public void onFinish() {
+                Log.w(null, "finished");
+              //delete input file after conversion
+                new File(In).delete();
+            }
+        });
+    }
 
 }
