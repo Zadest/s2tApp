@@ -210,7 +210,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 call.cancel();
                 // DELETE MP3
-                new File(getInternalDirectory() + "/converted.mp3").delete();
             }
 
             @Override
@@ -221,9 +220,9 @@ public class MainActivity extends AppCompatActivity {
                 myText.setText(R.string.wit_error);
                 call.cancel();
                 //DELETE Mp3
-                new File(getInternalDirectory() + "/converted.mp3").delete();
             }
         });
+        //new File(getInternalDirectory() + "/converted.mp3").delete();
     }
 
     private RequestBody prepareAudio() throws IOException{
