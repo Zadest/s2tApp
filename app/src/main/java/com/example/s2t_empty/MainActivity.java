@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             //Prepare Audio for wit.ai (convert from opus to mp3)
-            File CopyFile = new File(getInternalDirectory() + "/current_audio.opus");
+            File CopyFile = new File(getInternalDirectory() + "/original.opus");
             String FileIn = CopyFile.getPath();
             String FileOut = getInternalDirectory() + "/converted.mp3";
             //Copy content from Uri to File "original.opus"
@@ -300,7 +300,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void ConvertFromOpusToMp3(String In, String Out){
+
         FFmpeg ffmpeg = FFmpeg.getInstance(getApplicationContext());
+        if (FFmpeg.getInstance(this).isSupported()) {
+            // ffmpeg is supported (binary ffmpeg is automatically loaded)
+        } else {
+            // ffmpeg is not supported
+        }
         //convert sent file from ogg to mp3
       //ffmpeg -i audio.ogg -acodec libmp3lame audio.mp3
         String[] cmd = new String[]{"-i", In, "-acodec", "libmp3lame", Out};
