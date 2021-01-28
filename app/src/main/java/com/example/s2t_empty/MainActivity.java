@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
                 if(audioType.length() > 9){
                     audioType = audioType.substring(0, 10); //TODO if possible, resolve/remove codecs
                 }
-                call = witApi.getMessageFromAudio(audioType, prepareAudio(audioType));
+                call = witApi.getMessageFromAudio("audio/mpeg3", prepareAudio());
             }catch (IOException e){
                 e.printStackTrace();
             }
@@ -227,20 +227,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private RequestBody prepareAudio(String audioType) throws IOException{
-        Uri uri = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
-        //Uri uri = Uri.fromFile(new File(getInternalDirectory() + "/converted.mp3"));
-        //Uri uri = Uri.parse("file://" + getInternalDirectory() + "/converted.mp3");
-        InputStream is = getApplicationContext().getContentResolver().openInputStream(uri);
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        int nRead;
-        byte[] data = new byte[1024];
-        while ((nRead = is.read(data, 0, data.length)) != -1) {
-            buffer.write(data, 0, nRead);
-        }
-        buffer.flush();
-        byte[] byteArray = buffer.toByteArray();
-        return RequestBody.create(MediaType.parse("audio/mp3"), byteArray);
+    private RequestBody prepareAudio() throws IOException{
+        File file = new File(getInternalDirectory() + "/converted.mp3");
+        return RequestBody.create(MediaType.parse("audio/mpeg3"), file);
     }
 
     private WitAPI prepareRetrofit(){
