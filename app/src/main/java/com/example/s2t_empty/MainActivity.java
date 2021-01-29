@@ -123,6 +123,8 @@ public class MainActivity extends AppCompatActivity {
             //Convert ".opus" to ".mp3" with ffmpeg
             ConvertFromOpusToMp3(FileIn, FileOut);
 
+            SplitAudioFile(FileOut);
+
             //display info about the current audio file
             String currentFilename = getFileInfo(myUri);
             file_info.setText(currentFilename);
@@ -209,8 +211,8 @@ public class MainActivity extends AppCompatActivity {
                     myText.setText(e.getMessage());
                 }
                 call.cancel();
-                new File(getInternalDirectory() + "/converted.mp3").delete();
-                // DELETE MP3
+                //delete mp3
+                //new File(getInternalDirectory() + "/converted.mp3").delete();
             }
 
             @Override
@@ -220,8 +222,8 @@ public class MainActivity extends AppCompatActivity {
                 t.printStackTrace();
                 myText.setText(R.string.wit_error);
                 call.cancel();
-                new File(getInternalDirectory() + "/converted.mp3").delete();
-                //DELETE Mp3
+                //delete mp3 file
+                //new File(getInternalDirectory() + "/converted.mp3").delete();
             }
         });
         //
@@ -335,4 +337,27 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public void SplitAudioFile(String In){
+        String outDirectory = getInternalDirectory() + "/out%03d.mp3";
+        //ffmpeg -i somefile.mp3 -f segment -segment_time 3 -c copy out%03d.mp3
+        String[] cmd = new String[]{"-i", In, "-f", "segment", "-segment_time", "20", "-c", "copy", outDirectory};
+        FFmpeg ffmpeg = FFmpeg.getInstance(getApplicationContext());
+        ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
+            public void onStart() {
+                Log.w(null, "started");
+            }
+
+            public void onProgress(String message) {
+                Log.w(null, message);
+            }
+
+            public void onFailure(String message) {
+                Log.w(null, message);
+            }
+
+            public void onFinish() {
+                Log.w(null, "finished");
+            }
+        });
+    }
 }
