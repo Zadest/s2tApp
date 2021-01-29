@@ -125,6 +125,8 @@ public class MainActivity extends AppCompatActivity {
 
             SplitAudioFile(FileOut);
 
+            //TODO: delete original mp3 after splitting
+
             //display info about the current audio file
             String currentFilename = getFileInfo(myUri);
             file_info.setText(currentFilename);
