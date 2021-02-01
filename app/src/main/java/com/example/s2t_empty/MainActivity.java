@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     Button namedentity;
     Button savetext;
 
-    private boolean state = true;
+    String witText = "";
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -123,9 +123,7 @@ public class MainActivity extends AppCompatActivity {
             //Convert ".opus" to ".mp3" with ffmpeg
             ConvertFromOpusToMp3(FileIn, FileOut);
 
-            SplitAudioFile(FileOut);
-
-            //TODO: delete original mp3 after splitting
+            //TODO: delete original mp3 after splitting if >1 mp3 files after splitting
 
             //display info about the current audio file
             String currentFilename = getFileInfo(myUri);
@@ -182,35 +180,52 @@ public class MainActivity extends AppCompatActivity {
 
     public void changeTextWithWit(View myView) {
         ProgressBar progress = findViewById(R.id.progressBar);
+
+        String FileOut = getInternalDirectory() + "/converted.mp3";
+        SplitAudioFile(FileOut);
+        //wait until splitting finished --> error file not found /converted.mp3
         progress.setVisibility(View.VISIBLE);
         TextView myText = findViewById(R.id.textView5);
 
         WitAPI witApi = prepareRetrofit();
-        Call<ResponseBody> call = witApi.getMessageFromTestText();
-        try{
-            String audioType = getIntent().getType();
-            //in order to remove additional info, like codecs
-            if(audioType.length() > 9){
-                audioType = audioType.substring(0, 10); //TODO if possible, resolve/remove codecs
-            }
-            call = witApi.getMessageFromAudio("audio/mpeg3", prepareAudio());
-        }catch (IOException e){
-            e.printStackTrace();
+        //for mp3 file in data/data callWit(witApi)
+
+        File audioFolder = new File(getInternalDirectory());
+
+        File[] files = audioFolder.listFiles();
+        for (File file : files) {
+            if (file.getName().endsWith(".mp3")){
+                callWit(witApi, file);
         }
+        }
+        progress.setVisibility(View.INVISIBLE);
+        myText.setText(witText); //TODO: show text completely, layout cuts parts
+
+        namedentity.setEnabled(true);
+        savetext.setEnabled(true);
+        //progress.setVisibility(View.INVISIBLE);
+        //myText.setText(R.string.wit_error);
+    }
+
+    private void callWit(WitAPI api, File file){
+        Call<ResponseBody> call = api.getMessageFromTestText();
+        String audioType = getIntent().getType();
+        //in order to remove additional info, like codecs
+        if(audioType.length() > 9){
+            audioType = audioType.substring(0, 10); //TODO if possible, resolve/remove codecs
+        }
+        call = api.getMessageFromAudio("audio/mpeg3", RequestBody.create(MediaType.parse("audio/mpeg3"), file));
+
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 try {
                     JSONObject jsn = new JSONObject(response.body().string());
-                    progress.setVisibility(View.INVISIBLE);
-                    myText.setText(jsn.getString("text")); //TODO: show text completely, layout cuts parts
-                    namedentity.setEnabled(true);
-                    savetext.setEnabled(true);
-                    state = !(state);
+                    witText = witText.concat(" " + jsn.getString("text"));
+
                 } catch (JSONException |  IOException | NullPointerException e){ //TODO: improve error handling
-                    progress.setVisibility(View.INVISIBLE);
                     e.printStackTrace();
-                    myText.setText(e.getMessage());
+
                 }
                 call.cancel();
                 //delete mp3
@@ -220,9 +235,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 System.out.println("fail!");
-                progress.setVisibility(View.INVISIBLE);
                 t.printStackTrace();
-                myText.setText(R.string.wit_error);
                 call.cancel();
                 //delete mp3 file
                 //new File(getInternalDirectory() + "/converted.mp3").delete();
@@ -231,6 +244,7 @@ public class MainActivity extends AppCompatActivity {
         //
         //
         // new File(getInternalDirectory() + "/converted.mp3").delete();
+
     }
 
     private RequestBody prepareAudio() throws IOException{
@@ -333,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
 
             public void onFinish() {
                 Log.w(null, "finished");
-              //delete input file after conversion
+              //delete opus file after conversion
                 new File(In).delete();
             }
         });
@@ -342,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
     public void SplitAudioFile(String In){
         String outDirectory = getInternalDirectory() + "/out%03d.mp3";
         //ffmpeg -i somefile.mp3 -f segment -segment_time 3 -c copy out%03d.mp3
-        String[] cmd = new String[]{"-i", In, "-f", "segment", "-segment_time", "20", "-c", "copy", outDirectory};
+        String[] cmd = new String[]{"-i", In, "-f", "segment", "-segment_time", "19", "-c", "copy", outDirectory};
         FFmpeg ffmpeg = FFmpeg.getInstance(getApplicationContext());
         ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
             public void onStart() {
@@ -351,6 +365,7 @@ public class MainActivity extends AppCompatActivity {
 
             public void onProgress(String message) {
                 Log.w(null, message);
+
             }
 
             public void onFailure(String message) {
@@ -359,6 +374,7 @@ public class MainActivity extends AppCompatActivity {
 
             public void onFinish() {
                 Log.w(null, "finished");
+                //new File(getInternalDirectory() + "/converted.mp3").delete();
             }
         });
     }
