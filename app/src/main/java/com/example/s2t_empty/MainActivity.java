@@ -17,19 +17,4 @@ import androidx.navigation.ui.NavigationUI;
 
 public class MainActivity extends AppCompatActivity {
 
-    private boolean State = false;
-
-        public void changeText(View myView) {
-            System.out.println("!Test");
-            TextView myText = (TextView) findViewById(R.id.textView5);
-            System.out.println(myText.getText());
-            // TODO : Request
-            if (State) {
-                myText.setText("Neuer Text");
-                State = !(State);
-            } else {
-                myText.setText("Anderer Text");
-                State = !(State);
-            }
-        }
 }
