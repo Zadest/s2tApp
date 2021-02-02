@@ -3,11 +3,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/startScreen">
+    app:startDestination="@id/savedText">
 
     <fragment
         android:id="@+id/startScreen"
         android:name="com.example.s2t_empty.StartScreen"
         android:label="fragment_start_screen"
-        tools:layout="@layout/fragment_start_screen" />
+        tools:layout="@layout/fragment_start_screen" >
+        <action
+            android:id="@+id/action_startScreen_to_savedText"
+            app:destination="@id/savedText" />
+    </fragment>
+    <fragment
+        android:id="@+id/savedText"
+        android:name="com.example.s2t_empty.SavedText"
+        android:label="fragment_saved_text"
+        tools:layout="@layout/fragment_saved_text" >
+        <action
+            android:id="@+id/action_savedText_to_startScreen"
+            app:destination="@id/startScreen" />
+    </fragment>
 </navigation>
