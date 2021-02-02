@@ -3,6 +3,7 @@ package com.example.s2t_empty;
 import android.os.Bundle;
 //import android.widget.Toolbar;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import androidx.appcompat.widget.Toolbar;
 
@@ -16,20 +17,26 @@ import androidx.navigation.ui.NavigationUI;
 
 
 public class MainActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-    private boolean State = false;
+        Button ChangeText = findViewById(R.id.button_speechtotext);
+        Button SaveText = findViewById(R.id.button_savetext);
+        Button NamedEntity = findViewById(R.id.button_namedentity);
 
-        public void changeText(View myView) {
-            System.out.println("!Test");
-            TextView myText = (TextView) findViewById(R.id.textView5);
-            System.out.println(myText.getText());
-            // TODO : Request
-            if (State) {
-                myText.setText("Neuer Text");
-                State = !(State);
-            } else {
-                myText.setText("Anderer Text");
-                State = !(State);
-            }
-        }
+        ChangeText.setOnClickListener(v -> {
+            TextView Text = findViewById(R.id.textView5);
+            Text.setText("Sprachnachricht umwandeln.");
+        });
+        SaveText.setOnClickListener(v -> {
+            TextView Text = findViewById(R.id.textView5);
+            Text.setText("Text speichern.");
+        });
+        NamedEntity.setOnClickListener(v -> {
+            TextView Text = findViewById(R.id.textView5);
+            Text.setText("Named Entity anzeigen.");
+        });
+    }
 }
