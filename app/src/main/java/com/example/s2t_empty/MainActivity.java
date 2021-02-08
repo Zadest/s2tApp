@@ -8,25 +8,25 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.content.Intent;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
-import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.content.Intent;
-import android.net.Uri;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import android.view.View;
 import android.widget.Button;
@@ -54,8 +54,13 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.net.URI;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import nl.bravobit.ffmpeg.ExecuteBinaryResponseHandler;
+import nl.bravobit.ffmpeg.FFmpeg;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -70,13 +75,14 @@ public class MainActivity extends AppCompatActivity implements SavingPopup.Savin
     TextView file_info;
     TextView myText;
 
+    ProgressBar progress;
+
     Button speechtotext;
     Button namedentity;
     Button savetext;
 
     String fileName;
-
-    private boolean state = true;
+    String witText = "";
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -94,13 +100,13 @@ public class MainActivity extends AppCompatActivity implements SavingPopup.Savin
         mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
         file_info = findViewById(R.id.file_info);
+        myText = findViewById(R.id.textView5);
+
+        progress = findViewById(R.id.progressBar);
 
         //MediaPlayer
         play_pause_icon = findViewById(R.id.play_pause);
         stop_icon = findViewById(R.id.stop_play);
-
-        //Text
-        myText = findViewById(R.id.textView5);
 
         //Buttons
         speechtotext = findViewById(R.id.button_speechtotext);
@@ -108,9 +114,11 @@ public class MainActivity extends AppCompatActivity implements SavingPopup.Savin
         namedentity = findViewById(R.id.button_namedentity);
         savetext = findViewById(R.id.button_savetext);
 
+        //disable speechtotext button until converting is done
+        speechtotext.setEnabled(false);
         //disable buttons that need text for now
-//        namedentity.setEnabled(false);
-//        savetext.setEnabled(false);
+        namedentity.setEnabled(false);
+        savetext.setEnabled(false);
 
         namedentity.setOnClickListener(v ->{
             SharedPreferences sp = getSharedPreferences(String.valueOf(R.string.sp_name), Context.MODE_PRIVATE);
@@ -132,8 +140,21 @@ public class MainActivity extends AppCompatActivity implements SavingPopup.Savin
             String currentFilename = getFileInfo(myUri);
             file_info.setText(currentFilename);
 
-            //enable speechtotext button
-            speechtotext.setEnabled(true);
+            //Prepare Audio for wit.ai (convert from opus to mp3)
+            File CopyFile = new File(getInternalDirectory() + "/original.opus");
+            String FileIn = CopyFile.getPath();
+            String FileOut = getInternalDirectory() + "/converted.mp3";
+            //Copy content from Uri to File "original.opus"
+            try {
+                copyInputStreamToFile(myUri, CopyFile);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            //Convert ".opus" to ".mp3" with ffmpeg
+            ConvertFromOpusToMp3(FileIn, FileOut);
+
+            //TODO: delete original mp3 after splitting if >1 mp3 files after splitting
+
         } else {
             file_info.setText(R.string.no_file);
             //disable speechtotext button
@@ -172,59 +193,113 @@ public class MainActivity extends AppCompatActivity implements SavingPopup.Savin
         //assert navHostFragment != null;
         //NavController navController = navHostFragment.getNavController();
         //AppBarConfiguration appBarConfiguration =
-          //      new AppBarConfiguration.Builder(navController.getGraph()).build();
+        //      new AppBarConfiguration.Builder(navController.getGraph()).build();
         //NavigationUI.setupWithNavController(layout, toolbar, navController, appBarConfiguration);
 
     }
 
+    private String getInternalDirectory(){
+        return getApplicationContext().getFilesDir().getAbsolutePath();
+    }
+
     public void changeTextWithWit(View myView) {
-        //show that text is loading
-        ProgressBar progress = findViewById(R.id.progressBar);
         progress.setVisibility(View.VISIBLE);
+        String FileOut = getInternalDirectory() + "/converted.mp3";
+        SplitAudioFile(FileOut);
+        //further functionality happens when splitting is finished
+    }
 
-        //prepare wit call
-        Retrofit retrofit = new Retrofit.Builder().baseUrl("https://api.wit.ai/").build();
-        WitAPI witApi = retrofit.create(WitAPI.class);
-        Call<ResponseBody> call = witApi.getMessageFromTestText();
-        try{
-            String audioType = getIntent().getType();
-            //in order to remove additional info, like codecs
-            if(audioType.length() > 9){
-                audioType = audioType.substring(0, 10); //TODO if possible, resolve/remove codecs
-            }
-            call = witApi.getMessageFromAudio(audioType, prepareAudio(audioType));
-        }catch (IOException e){
-            e.printStackTrace();
-        }
 
-        //handle call
+    private void callWit(WitAPI api, File file, List<File> mp3Files){
+        Call<ResponseBody> call = api.getMessageFromAudio("audio/mpeg3", RequestBody.create(MediaType.parse("audio/mpeg3"), file));
+
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 try {
                     JSONObject jsn = new JSONObject(response.body().string());
-                    progress.setVisibility(View.INVISIBLE);
-                    myText.setText(jsn.getString("text")); //TODO: show text completely, layout cuts parts
-                    namedentity.setEnabled(true);
-                    savetext.setEnabled(true);
-                    state = !(state);
-                } catch (JSONException |  IOException | NullPointerException e){ //TODO: improve error handling
-                    progress.setVisibility(View.INVISIBLE);
+                    if(jsn.has("text")) {
+                        witText = witText.concat(" " + jsn.getString("text"));
+                    }
+                    //after last file: show result & clean up
+                    if(file == mp3Files.get(mp3Files.size() - 1)){
+                        progress.setVisibility(View.INVISIBLE);
+                        myText.setText(witText); //TODO: show text completely, layout cuts parts
+
+                        namedentity.setEnabled(true);
+                        savetext.setEnabled(true);
+
+                        for (File f: mp3Files){
+                            f.delete();
+                        }
+                    } else{
+                        //call method recursively as long as there are files to transcribe
+                        callWit(api,  mp3Files.get(mp3Files.indexOf(file) + 1), mp3Files);
+                    }
+
+
+                } catch (JSONException |  IOException | NullPointerException e){ //TODO: improve error handling further
                     e.printStackTrace();
-                    myText.setText(e.getMessage());
+                    progress.setVisibility(View.INVISIBLE);
+                    myText.setText(response.message());
                 }
+                progress.setVisibility(View.INVISIBLE);
                 call.cancel();
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 System.out.println("fail!");
-                progress.setVisibility(View.INVISIBLE);
                 t.printStackTrace();
-                myText.setText(R.string.wit_error);
+                progress.setVisibility(View.INVISIBLE);
+
+                for(File f: mp3Files){
+                    f.delete();
+                }
                 call.cancel();
             }
         });
+
+    }
+
+    private WitAPI prepareRetrofit(){
+        Retrofit retrofit = new Retrofit.Builder().baseUrl("https://api.wit.ai/").build();
+        return retrofit.create(WitAPI.class);
+    }
+
+    Uri handleSendVoice(Intent intent){
+        Uri voiceUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+        if (voiceUri != null){
+            System.out.println("Yay! Sound da, alles gut!");
+        }
+        return voiceUri;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private String getFileInfo(Uri uri){
+        //Info about current audio file
+        file_info = findViewById(R.id.file_info);
+        Cursor returnCursor = getContentResolver().query(uri, null, null, null, null);
+        int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+        returnCursor.moveToFirst();
+        fileName = returnCursor.getString(nameIndex);
+        returnCursor.close();
+        //file from whatsApp?
+        if (fileName.startsWith("PTT-")) {
+            String[] parts = fileName.split("-");
+            String dateOfFile = parts[1];
+            String yearOfFile = dateOfFile.substring(0, 4);
+            String monthOfFile = dateOfFile.substring(4, 6);
+            String dayOfFile = dateOfFile.substring(6, 8);
+            //String.join requires API level 26 (current min is 16)-- > better solution ?
+            String splittedDate = String.join(".", dayOfFile, monthOfFile, yearOfFile);
+            String infoString = "Sprachnachricht vom ".concat(splittedDate);
+            return infoString;
+            //audio file from other source
+        }else{
+            String infoString = "Aktuelle Datei: ".concat(fileName);
+            return infoString;
+        }
     }
 
     //open popup to save text
@@ -267,54 +342,110 @@ public class MainActivity extends AppCompatActivity implements SavingPopup.Savin
         }
         Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
     }
+    private void copyInputStreamToFile(Uri uri, File file) throws FileNotFoundException {
+     InputStream ins = getContentResolver().openInputStream(uri);
+        OutputStream out = null;
 
-    private RequestBody prepareAudio(String audioType) throws IOException{
-        Uri uri = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
-        InputStream is = getApplicationContext().getContentResolver().openInputStream(uri);
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        int nRead;
-        byte[] data = new byte[1024];
-        while ((nRead = is.read(data, 0, data.length)) != -1) {
-            buffer.write(data, 0, nRead);
+        try {
+            out = new FileOutputStream(file);
+            byte[] buf = new byte[1024];
+            int len;
+            while((len=ins.read(buf))>0){
+                out.write(buf,0,len);
+            }
         }
-        buffer.flush();
-        byte[] byteArray = buffer.toByteArray();
-        return RequestBody.create(MediaType.parse(audioType), byteArray);
-    }
-
-    Uri handleSendVoice(Intent intent){
-        Uri voiceUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-        if (voiceUri != null){
-            System.out.println("Yay! Sound da, alles gut!");
+        catch (Exception e) {
+            e.printStackTrace();
         }
-        return voiceUri;
-    }
+        finally {
+            // Ensure that the InputStreams are closed even if there's an exception.
+            try {
+                if ( out != null ) {
+                    out.close();
+                }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private String getFileInfo(Uri uri){
-        //Info about current audio file
-        file_info = findViewById(R.id.file_info);
-        Cursor returnCursor = getContentResolver().query(uri, null, null, null, null);
-        int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-        returnCursor.moveToFirst();
-        fileName = returnCursor.getString(nameIndex);
-        returnCursor.close();
-        //file from whatsApp?
-        if (fileName.startsWith("PTT-")) {
-            String[] parts = fileName.split("-");
-            String dateOfFile = parts[1];
-            String yearOfFile = dateOfFile.substring(0, 4);
-            String monthOfFile = dateOfFile.substring(4, 6);
-            String dayOfFile = dateOfFile.substring(6, 8);
-            //String.join requires API level 26 (current min is 16)-- > better solution ?
-            String splittedDate = String.join(".", dayOfFile, monthOfFile, yearOfFile);
-            String infoString = "Sprachnachricht vom ".concat(splittedDate);
-            return infoString;
-            //audio file from other source
-        }else{
-            String infoString = "Aktuelle Datei: ".concat(fileName);
-            return infoString;
+                ins.close();
+            }
+            catch ( IOException e ) {
+                e.printStackTrace();
+            }
         }
     }
 
+    public void ConvertFromOpusToMp3(String In, String Out){
+        //show progress
+        progress.setVisibility(View.VISIBLE);
+        FFmpeg ffmpeg = FFmpeg.getInstance(getApplicationContext());
+        if (FFmpeg.getInstance(this).isSupported()) {
+            // ffmpeg is supported (binary ffmpeg is automatically loaded)
+        } else {
+            // ffmpeg is not supported
+        }
+        //convert sent file from ogg to mp3
+      //ffmpeg -i audio.ogg -acodec libmp3lame audio.mp3
+        String[] cmd = new String[]{"-i", In, "-acodec", "libmp3lame", Out};
+        ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
+            public void onStart() {
+                Log.w(null, "started");
+            }
+
+            public void onProgress(String message) {
+                Log.w(null, message);
+            }
+
+            public void onFailure(String message) {
+                Log.w(null, message);
+                progress.setVisibility(View.INVISIBLE);
+            }
+
+            public void onFinish() {
+                Log.w(null, "finished");
+                //show that progress is finished, enable speechtotext button
+                progress.setVisibility(View.INVISIBLE);
+                speechtotext.setEnabled(true);
+                //delete opus file after conversion
+                new File(In).delete();
+            }
+        });
+    }
+
+    public void SplitAudioFile(String In){
+        String outDirectory = getInternalDirectory() + "/out%03d.mp3";
+        //ffmpeg -i somefile.mp3 -f segment -segment_time 3 -c copy out%03d.mp3
+        String[] cmd = new String[]{"-i", In, "-f", "segment", "-segment_time", "19", "-c", "copy", outDirectory};
+        FFmpeg ffmpeg = FFmpeg.getInstance(getApplicationContext());
+        ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
+            public void onStart() {
+                Log.w(null, "started");
+            }
+
+            public void onProgress(String message) {
+                Log.w(null, message);
+
+            }
+
+            public void onFailure(String message) {
+                Log.w(null, message);
+                progress.setVisibility(View.INVISIBLE);
+            }
+
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            public void onFinish() {
+                Log.w(null, "finished");
+
+                //filter files in audiofolder for only mp3
+                File audioFolder = new File(getInternalDirectory());
+                List<File> mp3Files = Arrays.stream(audioFolder.listFiles()).filter(f -> f.getName().endsWith(".mp3")).collect(Collectors.toList());
+                if(mp3Files.size() > 1) {
+                    File converted = new File(getInternalDirectory() + "/converted.mp3");
+                    mp3Files.remove(converted);
+                    converted.delete();
+                }
+
+                //call wit for first mp3 file, others are called recursively if necessary
+                WitAPI witApi = prepareRetrofit();
+                callWit(witApi, mp3Files.get(0), mp3Files);
+            }
+        });
+    }
 }
