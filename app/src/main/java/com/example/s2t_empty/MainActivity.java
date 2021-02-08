@@ -112,8 +112,10 @@ public class MainActivity extends AppCompatActivity implements SavingPopup.Savin
             SharedPreferences sp = getSharedPreferences(String.valueOf(R.string.sp_name), Context.MODE_PRIVATE);
             sp.getAll();
         });
-        SharedPreferences sp = getSharedPreferences(String.valueOf(R.string.sp_name), Context.MODE_PRIVATE);
-        sp.getAll();
+        //only to test in debug mode if text was saved. can be removed if not needed anymore
+//        SharedPreferences sp = getSharedPreferences(String.valueOf(R.string.sp_name), Context.MODE_PRIVATE);
+//        sp.getAll();
+
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             // verarbeite den Intent
             myUri = handleSendVoice(intent);
