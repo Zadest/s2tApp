@@ -34,25 +34,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.widget.Toolbar;
-
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
-//import androidx.navigation.NavController;
-//import androidx.navigation.fragment.NavHostFragment;
-//import androidx.navigation.ui.AppBarConfiguration;
-//import androidx.navigation.ui.NavigationUI;
-
-import com.google.android.material.appbar.CollapsingToolbarLayout;
-
-import java.io.IOException;
 
 import com.example.services.WitAPI;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -124,7 +112,8 @@ public class MainActivity extends AppCompatActivity implements SavingPopup.Savin
             SharedPreferences sp = getSharedPreferences(String.valueOf(R.string.sp_name), Context.MODE_PRIVATE);
             sp.getAll();
         });
-
+        SharedPreferences sp = getSharedPreferences(String.valueOf(R.string.sp_name), Context.MODE_PRIVATE);
+        sp.getAll();
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             // verarbeite den Intent
             myUri = handleSendVoice(intent);
@@ -152,8 +141,6 @@ public class MainActivity extends AppCompatActivity implements SavingPopup.Savin
             }
             //Convert ".opus" to ".mp3" with ffmpeg
             ConvertFromOpusToMp3(FileIn, FileOut);
-
-            //TODO: delete original mp3 after splitting if >1 mp3 files after splitting
 
         } else {
             file_info.setText(R.string.no_file);
@@ -437,6 +424,7 @@ public class MainActivity extends AppCompatActivity implements SavingPopup.Savin
                 File audioFolder = new File(getInternalDirectory());
                 List<File> mp3Files = Arrays.stream(audioFolder.listFiles()).filter(f -> f.getName().endsWith(".mp3")).collect(Collectors.toList());
                 if(mp3Files.size() > 1) {
+                    // remove first converted mp3 file if not needed
                     File converted = new File(getInternalDirectory() + "/converted.mp3");
                     mp3Files.remove(converted);
                     converted.delete();
