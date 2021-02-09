@@ -208,12 +208,12 @@ public class MainActivity extends AppCompatActivity {
                     }
                     //after last file: show result & clean up
                     if(file == mp3Files.get(mp3Files.size() - 1)){
-                        progress.setVisibility(View.INVISIBLE);
                         myText.setText(witText); //TODO: show text completely, layout cuts parts
 
                         namedentity.setEnabled(true);
                         savetext.setEnabled(true);
 
+                        progress.setVisibility(View.INVISIBLE);
                         for (File f: mp3Files){
                             f.delete();
                         }
@@ -228,7 +228,6 @@ public class MainActivity extends AppCompatActivity {
                     progress.setVisibility(View.INVISIBLE);
                     myText.setText(response.message());
                 }
-                progress.setVisibility(View.INVISIBLE);
                 call.cancel();
             }
 
