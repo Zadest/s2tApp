@@ -38,6 +38,9 @@ Das Ziel dieser App ist es daher, empfangene Sprachnachrichten in Text umzuwande
 
 ### 4.2 Navigation
 
+- Fragments als Teilbereiche der App
+- Navigation als festes Bestandteil wechselt zwischen den Fragmenten hin und her
+
 ## 5. Lösungen
 
 ### 5.1 FFmpeg Library
