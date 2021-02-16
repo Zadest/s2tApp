@@ -27,17 +27,21 @@ Das Ziel dieser App ist es daher, empfangene Sprachnachrichten in Text umzuwande
 ### 2.2 Konvertierung Opus zu MP3
 - Nutzung FFMPEG externe Bibliothek
 
-### 2.2 Sprachnachricht an Wit.Ai übertragen
+### 2.3 Sprachnachricht an Wit.Ai übertragen
 - HTTP-Kommunikation mithilfe von Retrofit
 - Rekursives Schicken der einzelnen MP3-Dateien
 
-### 2.3 Wit.Ai - Voodoo
+### 2.4 Wit.Ai - Voodoo
 - Nutzung des /speech-Endpunkts: https://wit.ai/docs/http/20200513#post__speech_link
 
-### 2.4 Rückgabe und Darstellung der Daten
+### 2.5 Rückgabe und Darstellung der Daten
 - Response im JSON-Format
 - Benötigter Text befindet sich unter "text"
 - Layout
+
+### 2.6 Navigation
+- Fragments als Teilbereiche der App
+- Navigation als festes Bestandteil wechselt zwischen den Fragmenten hin und her
 
 ## 3. Extras
 
@@ -46,8 +50,4 @@ Das Ziel dieser App ist es daher, empfangene Sprachnachrichten in Text umzuwande
 ### 3.2 Speichern von Texten
 - SharedPreferences
 - Popup-Dialog
-
-### 4. Navigation
-- Fragments als Teilbereiche der App
-- Navigation als festes Bestandteil wechselt zwischen den Fragmenten hin und her
 
