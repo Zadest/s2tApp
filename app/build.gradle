@@ -4,12 +4,12 @@ plugins {
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "30.0.2"
+    buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "com.example.s2t_empty"
-        minSdkVersion 16
-        targetSdkVersion 30
+        minSdkVersion 21 // 21 für nav
+        targetSdkVersion 28 //28 for ffmpeg (28+: error=13, permission denied)
         versionCode 1
         versionName "1.0"
 
@@ -29,11 +29,16 @@ android {
 }
 
 dependencies {
-
     implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'nl.bravobit:android-ffmpeg:1.1.7'
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    implementation 'androidx.navigation:navigation-fragment:2.3.3'
+    implementation 'androidx.navigation:navigation-ui:2.3.3'
 }
+

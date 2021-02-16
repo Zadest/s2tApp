@@ -1,36 +1,39 @@
 package com.example.s2t_empty;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
-
-    private boolean State = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNavigationView);
+        bottomNav.setOnNavigationItemSelectedListener(navListener);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment,
+                new StartScreen()).commit();
     }
 
-    public void changeText(View myView) {
-        System.out.println("!Test");
-        TextView myText = (TextView) findViewById(R.id.textView5);
-        System.out.println(myText.getText());
-        // TODO : Request
-        if (State) {
-            myText.setText("Neuer Text");
-            State = !(State);
-        }
-        else{
-            myText.setText("Anderer Text");
-            State = !(State);
-        }
-    }
+    BottomNavigationView.OnNavigationItemSelectedListener navListener =
+            item -> {
+                Fragment selectedFragment = null;
+
+                switch (item.getItemId()) {
+                    case R.id.start_screen:
+                        selectedFragment = new StartScreen();
+                        break;
+                    case R.id.saved_text:
+                        selectedFragment = new SavedText();
+                        break;
+                }
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment,
+                        selectedFragment).commit();
+                return true;
+            };
+
 
 }
