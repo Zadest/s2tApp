@@ -25,7 +25,7 @@ Das Ziel dieser App ist es daher, empfangene Sprachnachrichten in Text umzuwande
 - Zur Weiterverarbeitung übergeben
 
 ### 2.2 Konvertierung Opus zu MP3
-- Nutzung FFMPEG externe Bibliothek
+- Nutzung **FFMPEG** externe Bibliothek
 
 ### 2.3 Sprachnachricht an Wit.Ai übertragen
 - HTTP-Kommunikation mithilfe von Retrofit
