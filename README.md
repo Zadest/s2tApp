@@ -2,7 +2,7 @@
 
 Speech-to-text App für Android Phones
 
-## 0. Inhalt
+## Inhalt
 - [1. Grundidee](#1-grundidee)
 - [2. Vorgehensweise](#2-vorgehensweise)
 - [3. Extras](#3-extras)
