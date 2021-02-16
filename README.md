@@ -21,8 +21,8 @@ Das Ziel dieser App ist es daher, empfangene Sprachnachrichten in Text umzuwande
 ### 2.1 Whatsapp-Sprachnachricht exportieren
 - Intent im Android Manifest "anmelden"
 - Intent in der onCreate Methode unserer Anwendung verarbeiten
--- Typüberprüfung
--- Zur Weiterverarbeitung übergeben
+- Typüberprüfung
+- Zur Weiterverarbeitung übergeben
 
 ### 2.2 Sprachnachricht an Wit.Ai übertragen
 - HTTP-Kommunikation mithilfe von Retrofit
