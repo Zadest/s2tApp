@@ -1,6 +1,14 @@
 # S2TApp
-[Vorgehensweise](#2-vorgehensweise)
-Speech-to-text App for Android Phones
+
+Speech-to-text App für Android Phones
+
+## 0. Inhalt
+- [1. Grundidee](#1-grundidee)
+- [2. Vorgehensweise](#2-vorgehensweise)
+- [3. Extras](#3-extras)
+- [4. Probleme](#4-probleme)
+- [5. Lösungen](#5-lösungen)
+
 
 ## 1. Grundidee
 Immer häufiger verwenden wir bei der Nutzung von Instant Messaging Diensten wie bspw. Whatsapp die mitgelieferten Sprachnachrichtsfunktionen. Mit diesen können eingesprochene Nachrichten aufgenommen und versendet werden. Diese Sprachnachrichten bleiben im Chat-Verlauf bestehen und sind zu jedem späteren Zeitpunkt anzuhören.
