@@ -125,9 +125,13 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
             file_info.setText(currentFilename);
 
             //Prepare Audio for wit.ai (convert from opus to mp3)
-            File CopyFile = new File(getInternalDirectory() + "/original.opus");
-            String FileIn = CopyFile.getPath();
+            String FileIn = getInternalDirectory() + "/original.opus";
+            File CopyFile = new File(FileIn);
             String FileOut = getInternalDirectory() + "/converted.mp3";
+            File convertedFile = new File(FileOut);
+            if(convertedFile.exists()){
+                convertedFile.delete();
+            }
             //Copy content from Uri to File "original.opus"
             try {
                 copyInputStreamToFile(myUri, CopyFile);
@@ -169,74 +173,6 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
         return root;
     }
 
-    private String getInternalDirectory(){
-        return getActivity().getApplicationContext().getFilesDir().getAbsolutePath();
-    }
-
-    public void changeTextWithWit(View myView) {
-        progress.setVisibility(View.VISIBLE);
-        String FileOut = getInternalDirectory() + "/converted.mp3";
-        SplitAudioFile(FileOut);
-        //further functionality happens when splitting is finished
-    }
-
-
-    private void callWit(WitAPI api, File file, List<File> mp3Files){
-        Call<ResponseBody> call = api.getMessageFromAudio("audio/mpeg3", RequestBody.create(MediaType.parse("audio/mpeg3"), file));
-
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                try {
-                    JSONObject jsn = new JSONObject(response.body().string());
-                    if(jsn.has("text")) {
-                        witText = witText.concat(" " + jsn.getString("text"));
-                    }
-                    //after last file: show result & clean up
-                    if(file == mp3Files.get(mp3Files.size() - 1)){
-                        myText.setText(witText); //TODO: show text completely, layout cuts parts
-
-                        namedentity.setEnabled(true);
-                        savetext.setEnabled(true);
-
-                        progress.setVisibility(View.INVISIBLE);
-                        for (File f: mp3Files){
-                            f.delete();
-                        }
-                    } else{
-                        //call method recursively as long as there are files to transcribe
-                        callWit(api,  mp3Files.get(mp3Files.indexOf(file) + 1), mp3Files);
-                    }
-
-
-                } catch (JSONException |  IOException | NullPointerException e){ //TODO: improve error handling further
-                    e.printStackTrace();
-                    progress.setVisibility(View.INVISIBLE);
-                    myText.setText(response.message());
-                }
-                call.cancel();
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                System.out.println("fail!");
-                t.printStackTrace();
-                progress.setVisibility(View.INVISIBLE);
-
-                for(File f: mp3Files){
-                    f.delete();
-                }
-                call.cancel();
-            }
-        });
-
-    }
-
-    private WitAPI prepareRetrofit(){
-        Retrofit retrofit = new Retrofit.Builder().baseUrl("https://api.wit.ai/").build();
-        return retrofit.create(WitAPI.class);
-    }
-
     Uri handleSendVoice(Intent intent){
         Uri voiceUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
         if (voiceUri != null){
@@ -270,6 +206,11 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
             return infoString;
         }
     }
+
+    private String getInternalDirectory(){
+        return getActivity().getApplicationContext().getFilesDir().getAbsolutePath();
+    }
+
     private void copyInputStreamToFile(Uri uri, File file) throws FileNotFoundException {
         InputStream ins = getActivity().getContentResolver().openInputStream(uri);
         OutputStream out = null;
@@ -377,6 +318,13 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
         });
     }
 
+    public void changeTextWithWit(View myView) {
+        progress.setVisibility(View.VISIBLE);
+        String FileOut = getInternalDirectory() + "/converted.mp3";
+        SplitAudioFile(FileOut);
+        //further functionality happens when splitting is finished
+    }
+
     public void SplitAudioFile(String In){
         String outDirectory = getInternalDirectory() + "/out%03d.mp3";
         //ffmpeg -i somefile.mp3 -f segment -segment_time 3 -c copy out%03d.mp3
@@ -416,4 +364,60 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
             }
         });
     }
+
+    private WitAPI prepareRetrofit(){
+        Retrofit retrofit = new Retrofit.Builder().baseUrl("https://api.wit.ai/").build();
+        return retrofit.create(WitAPI.class);
+    }
+
+    private void callWit(WitAPI api, File file, List<File> mp3Files){
+        Call<ResponseBody> call = api.getMessageFromAudio("audio/mpeg3", RequestBody.create(MediaType.parse("audio/mpeg3"), file));
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    JSONObject jsn = new JSONObject(response.body().string());
+                    if(jsn.has("text")) {
+                        witText = witText.concat(" " + jsn.getString("text"));
+                    }
+                    //after last file: show result & clean up
+                    if(file == mp3Files.get(mp3Files.size() - 1)){
+                        myText.setText(witText); //TODO: show text completely, layout cuts parts
+
+                        namedentity.setEnabled(true);
+                        savetext.setEnabled(true);
+
+                        progress.setVisibility(View.INVISIBLE);
+                        for (File f: mp3Files){
+                            f.delete();
+                        }
+                    } else{
+                        //call method recursively as long as there are files to transcribe
+                        callWit(api,  mp3Files.get(mp3Files.indexOf(file) + 1), mp3Files);
+                    }
+
+
+                } catch (JSONException |  IOException | NullPointerException e){ //TODO: improve error handling further
+                    e.printStackTrace();
+                    progress.setVisibility(View.INVISIBLE);
+                    myText.setText(response.message());
+                }
+                call.cancel();
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                myText.setText("Call failed: "+ t.getMessage());
+                t.printStackTrace();
+                progress.setVisibility(View.INVISIBLE);
+
+                for(File f: mp3Files){
+                    f.delete();
+                }
+                call.cancel();
+            }
+        });
+    }
+
 }

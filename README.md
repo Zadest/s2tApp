@@ -1,12 +1,38 @@
 # S2TApp
 
-Speech-to-text App for Android Phones
+Speech-to-text App für Android Phones
+
+## Inhalt
+- [1. Grundidee](#1-grundidee)
+- [2. Vorgehensweise](#2-vorgehensweise)
+- [3. Extras](#3-extras)
+- [4. Probleme](#4-probleme)
+- [5. Lösungen](#5-lösungen)
+
 
 ## 1. Grundidee
+Immer häufiger verwenden wir bei der Nutzung von Instant Messaging Diensten wie bspw. Whatsapp die mitgelieferten Sprachnachrichtsfunktionen. Mit diesen können eingesprochene Nachrichten aufgenommen und versendet werden. Diese Sprachnachrichten bleiben im Chat-Verlauf bestehen und sind zu jedem späteren Zeitpunkt anzuhören.
+Mit dieser Möglichkeit, eine Nachricht durch eigene Aussprache mehr Information zukommen zu lassen als einem geschrieben Text, ist allerdings auch das Abrufen der Nachricht eingeschränkt. Im Alltag gibt es immer Situationen, in denen wir die Zeit haben eine Nachricht zu lesen, aber nicht eine Sound-Datei anzuhören. Auch das erneute Abrufen von Informationen innerhalb einer Sprachnachricht ist nicht durch ein einfaches Überfliegen der Nachricht getan.
+
+Das Ziel dieser App ist es daher, empfangene Sprachnachrichten in Text umzuwandeln, um eine bessere (Wieder-)verwendbarkeit und Abrufbarkeit der Informationen zu ermöglichen.
 
 ## 2. Vorgehensweise
 
 ### 2.1 Whatsapp-Sprachnachricht exportieren
+- Intent im Android Manifest "anmelden"
+- Intent in der onCreate Methode unserer Anwendung verarbeiten
+- Typüberprüfung
+- Zur Weiterverarbeitung übergeben
+
+### 2.2 Konvertierung Opus zu MP3
+- Nutzung **FFMPEG** externe Bibliothek
+
+### 2.3 Sprachnachricht an Wit.Ai übertragen
+- HTTP-Kommunikation mithilfe von Retrofit
+- Rekursives Schicken der einzelnen MP3-Dateien
+
+### 2.4 Wit.Ai - Voodoo
+- Nutzung des /speech-Endpunkts: https://wit.ai/docs/http/20200513#post__speech_link
 
 ### 2.2 Sprachnachricht an Wit.Ai übertragen
 - Retrofit
