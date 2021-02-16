@@ -1,5 +1,5 @@
 # S2TApp
-[Vorgehensweise] (./#2-vorgehensweise)
+[Vorgehensweise](./#2-vorgehensweise)
 Speech-to-text App for Android Phones
 
 ## 1. Grundidee
