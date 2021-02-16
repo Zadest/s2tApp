@@ -24,6 +24,9 @@ Das Ziel dieser App ist es daher, empfangene Sprachnachrichten in Text umzuwande
 - Typüberprüfung
 - Zur Weiterverarbeitung übergeben
 
+### 2.2 Konvertierung Opus zu MP3
+- Nutzung FFMPEG externe Bibliothek
+
 ### 2.2 Sprachnachricht an Wit.Ai übertragen
 - HTTP-Kommunikation mithilfe von Retrofit
 - Rekursives Schicken der einzelnen MP3-Dateien
@@ -44,15 +47,7 @@ Das Ziel dieser App ist es daher, empfangene Sprachnachrichten in Text umzuwande
 - SharedPreferences
 - Popup-Dialog
 
-## 4. Probleme
-
-### 4.1 Entschlüsseln des Opus-Codecs
-
-### 4.2 Navigation
-
+### 4. Navigation
 - Fragments als Teilbereiche der App
 - Navigation als festes Bestandteil wechselt zwischen den Fragmenten hin und her
 
-## 5. Lösungen
-
-### 5.1 FFmpeg Library
