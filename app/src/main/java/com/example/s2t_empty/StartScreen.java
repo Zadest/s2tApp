@@ -74,6 +74,9 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+
+        //TODO what to do when coming from savedtexts?
+
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_start_screen, container, false);
 
@@ -96,7 +99,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
 
         //Buttons
         speechtotext = root.findViewById(R.id.button_speechtotext);
-        //TODO: add functionality to namedentity
+        //TODO: remove named entity button or add functionality
         namedentity = root.findViewById(R.id.button_namedentity);
         savetext = root.findViewById(R.id.button_savetext);
 
@@ -240,46 +243,6 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
             }
         }
     }
-    //open popup to save text
-    public void openSavingPopup(View myView){
-        DialogFragment newFragment = new SavingPopup();
-        newFragment.show(getChildFragmentManager(), "savingPopup");
-    }
-
-    //handle saving from popup
-    @Override
-    public void onDialogPositiveClick(DialogFragment dialogFragment) {
-        //extract name that was entered in dialog
-        String personName = "";
-        Dialog dialog = dialogFragment.getDialog();
-        if(dialog != null){
-            personName =((EditText) dialog.findViewById(R.id.editTextTextPersonName)).getText().toString();
-        }
-
-        //initialize sp
-        SharedPreferences sp = getActivity().getSharedPreferences(String.valueOf(R.string.sp_name), Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
-
-        //generate key to save text with
-        //TODO: find other fallback solution
-        String key = "savedText1";
-        if(fileName != null && !fileName.isEmpty() && !personName.isEmpty()){
-            //TODO: structure key in a cleverer way?
-            key = fileName + "_" + personName;
-        }
-
-        //save text in sp
-        //TODO: check and handle case that key already exists in sp. atm: content gets overwritten!
-        editor.putString(key, myText.getText().toString());
-        editor.apply();
-
-        //mirror success to user
-        String toastMessage = "Nachricht gespeichert";
-        if(!personName.isEmpty()){
-            toastMessage = "Nachricht von " + personName + " gespeichert";
-        }
-        Toast.makeText(getActivity().getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-    }
 
     public void ConvertFromOpusToMp3(String In, String Out){
         //show progress
@@ -418,6 +381,47 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                 call.cancel();
             }
         });
+    }
+
+    //open popup to save text
+    public void openSavingPopup(View myView){
+        DialogFragment newFragment = new SavingPopup();
+        newFragment.show(getChildFragmentManager(), "savingPopup");
+    }
+
+    //handle saving from popup
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialogFragment) {
+        //extract name that was entered in dialog
+        String personName = "";
+        Dialog dialog = dialogFragment.getDialog();
+        if(dialog != null){
+            personName =((EditText) dialog.findViewById(R.id.editTextTextPersonName)).getText().toString();
+        }
+
+        //initialize sp
+        SharedPreferences sp = getActivity().getSharedPreferences(String.valueOf(R.string.sp_name), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+
+        //generate key to save text with
+        //TODO: find other fallback solution
+        String key = "savedText1";
+        if(fileName != null && !fileName.isEmpty() && !personName.isEmpty()){
+            //TODO: structure key in a cleverer way?
+            key = fileName + "_" + personName;
+        }
+
+        //save text in sp
+        //TODO: check and handle case that key already exists in sp. atm: content gets overwritten!
+        editor.putString(key, myText.getText().toString());
+        editor.apply();
+
+        //mirror success to user
+        String toastMessage = "Nachricht gespeichert";
+        if(!personName.isEmpty()){
+            toastMessage = "Nachricht von " + personName + " gespeichert";
+        }
+        Toast.makeText(getActivity().getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
     }
 
 }
