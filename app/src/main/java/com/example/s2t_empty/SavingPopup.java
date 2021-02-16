@@ -13,7 +13,7 @@ import androidx.fragment.app.DialogFragment;
 
 public class SavingPopup extends DialogFragment {
 
-    //enable handling saving from MainActivity
+    //enable handling saving from StartScreen
 
     public interface SavingPopupListener{
         void onDialogPositiveClick(DialogFragment dialog);
@@ -25,7 +25,7 @@ public class SavingPopup extends DialogFragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
-            listener = (SavingPopupListener) context;
+            listener = (SavingPopupListener) ((MainActivity) context).getSupportFragmentManager().findFragmentByTag("startScreen");
         } catch (ClassCastException e){
             throw new ClassCastException(getActivity().toString() + " must implement SavingPopupListener");
         }
@@ -38,16 +38,8 @@ public class SavingPopup extends DialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         builder.setView(inflater.inflate(R.layout.activity_saving_popup, null))
                 .setTitle(R.string.savingpopup)
-                .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        listener.onDialogPositiveClick(SavingPopup.this);
-                    }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                    }
+                .setPositiveButton(R.string.save, (dialogInterface, i) -> listener.onDialogPositiveClick(SavingPopup.this))
+                .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
                 });
         return builder.create();
     }

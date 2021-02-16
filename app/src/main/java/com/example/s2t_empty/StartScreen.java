@@ -1,6 +1,9 @@
 package com.example.s2t_empty;
 
+import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -10,6 +13,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import android.provider.OpenableColumns;
@@ -18,9 +22,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.services.WitAPI;
 
@@ -47,7 +53,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class StartScreen extends Fragment {
+public class StartScreen extends Fragment implements SavingPopup.SavingPopupListener {
 
     ImageView play_pause_icon;
     ImageView stop_icon;
@@ -61,6 +67,7 @@ public class StartScreen extends Fragment {
     Button savetext;
 
     String witText = "";
+    String fileName;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Nullable
@@ -71,7 +78,6 @@ public class StartScreen extends Fragment {
         View root = inflater.inflate(R.layout.fragment_start_screen, container, false);
 
         // Get Intent ( ueberprueft die durch "Share" uebergebene Datei )
-        //TODO: make parts with getActivity() null safe!
         Intent intent = getActivity().getIntent();
         String action = intent.getAction();
         String type = intent.getType();
@@ -90,7 +96,7 @@ public class StartScreen extends Fragment {
 
         //Buttons
         speechtotext = root.findViewById(R.id.button_speechtotext);
-        //TODO: add functionality to these buttons
+        //TODO: add functionality to namedentity
         namedentity = root.findViewById(R.id.button_namedentity);
         savetext = root.findViewById(R.id.button_savetext);
 
@@ -101,6 +107,7 @@ public class StartScreen extends Fragment {
         //disable buttons that need text for now
         namedentity.setEnabled(false);
         savetext.setEnabled(false);
+        savetext.setOnClickListener(this::openSavingPopup);
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             // verarbeite den Intent
@@ -244,11 +251,11 @@ public class StartScreen extends Fragment {
         Cursor returnCursor = getActivity().getContentResolver().query(uri, null, null, null, null);
         int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
         returnCursor.moveToFirst();
-        String name = returnCursor.getString(nameIndex);
+        fileName = returnCursor.getString(nameIndex);
         returnCursor.close();
         //file from whatsApp?
-        if (name.startsWith("PTT-")) {
-            String[] parts = name.split("-");
+        if (fileName.startsWith("PTT-")) {
+            String[] parts = fileName.split("-");
             String dateOfFile = parts[1];
             String yearOfFile = dateOfFile.substring(0, 4);
             String monthOfFile = dateOfFile.substring(4, 6);
@@ -259,7 +266,7 @@ public class StartScreen extends Fragment {
             return infoString;
             //audio file from other source
         }else{
-            String infoString = "Aktuelle Datei: ".concat(name);
+            String infoString = "Aktuelle Datei: ".concat(fileName);
             return infoString;
         }
     }
@@ -291,6 +298,46 @@ public class StartScreen extends Fragment {
                 e.printStackTrace();
             }
         }
+    }
+    //open popup to save text
+    public void openSavingPopup(View myView){
+        DialogFragment newFragment = new SavingPopup();
+        newFragment.show(getChildFragmentManager(), "savingPopup");
+    }
+
+    //handle saving from popup
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialogFragment) {
+        //extract name that was entered in dialog
+        String personName = "";
+        Dialog dialog = dialogFragment.getDialog();
+        if(dialog != null){
+            personName =((EditText) dialog.findViewById(R.id.editTextTextPersonName)).getText().toString();
+        }
+
+        //initialize sp
+        SharedPreferences sp = getActivity().getSharedPreferences(String.valueOf(R.string.sp_name), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+
+        //generate key to save text with
+        //TODO: find other fallback solution
+        String key = "savedText1";
+        if(fileName != null && !fileName.isEmpty() && !personName.isEmpty()){
+            //TODO: structure key in a cleverer way?
+            key = fileName + "_" + personName;
+        }
+
+        //save text in sp
+        //TODO: check and handle case that key already exists in sp. atm: content gets overwritten!
+        editor.putString(key, myText.getText().toString());
+        editor.apply();
+
+        //mirror success to user
+        String toastMessage = "Nachricht gespeichert";
+        if(!personName.isEmpty()){
+            toastMessage = "Nachricht von " + personName + " gespeichert";
+        }
+        Toast.makeText(getActivity().getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
     }
 
     public void ConvertFromOpusToMp3(String In, String Out){

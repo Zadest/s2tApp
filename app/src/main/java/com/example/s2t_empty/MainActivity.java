@@ -1,7 +1,14 @@
 package com.example.s2t_empty;
 
+import android.app.Dialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.EditText;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -15,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView bottomNav = findViewById(R.id.bottomNavigationView);
         bottomNav.setOnNavigationItemSelectedListener(navListener);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment,
-                new StartScreen()).commit();
+                new StartScreen(), "startScreen").commit();
     }
 
     BottomNavigationView.OnNavigationItemSelectedListener navListener =
@@ -34,6 +41,5 @@ public class MainActivity extends AppCompatActivity {
                         selectedFragment).commit();
                 return true;
             };
-
 
 }
