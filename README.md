@@ -6,8 +6,6 @@ Speech-to-text App für Android Phones
 - [1. Grundidee](#1-grundidee)
 - [2. Vorgehensweise](#2-vorgehensweise)
 - [3. Extras](#3-extras)
-- [4. Probleme](#4-probleme)
-- [5. Lösungen](#5-lösungen)
 
 
 ## 1. Grundidee
@@ -27,11 +25,11 @@ Das Ziel dieser App ist es daher, empfangene Sprachnachrichten in Text umzuwande
 ### 2.2 Konvertierung Opus zu MP3 und Splitting der Datei
 Die an unsere App in Schritt 2.1 übersendete Datei hat den Dateityp .ogg mit opus-Codec.
 Wit.Ai kann dieses Format nicht verarbeiten, weshalb eine Konvertierung der Sprachnachricht von .opus nach .mp3 erfolgt.
-Hierfür wird die externe Bibliothek `FFMPEG` verwendet. Die verwendete Implentierung sehen Sie [hier](https://github.com/bravobit/FFmpeg-Android).
+Hierfür wird die externe Bibliothek `FFMPEG` verwendet. Die verwendete Implentierung befindet sich [hier](https://github.com/bravobit/FFmpeg-Android).
 Da die Dateilänge für eine Verarbeitung mit Wit.Ai auf 20 Sekunden beschränkt ist, wird die übersendete Datei nach der erfolgreichen Konvertierung in 20 Sekunden-Chunks unterteilt.
-Auch für diesen Schritt kommt die `FFMPEG`-Implentierung zum Einsatz.
+Auch für diesen Schritt kommt die `FFMPEG`-Implementierung zum Einsatz.
 
-### 2.3 Sprachnachricht an Wit.Ai übertragen
+### 2.3 Übertragung der Sprachnachricht an Wit.Ai
 - HTTP-Kommunikation mithilfe von Retrofit
 - Rekursives Schicken der einzelnen MP3-Dateien
 
@@ -50,6 +48,9 @@ Auch für diesen Schritt kommt die `FFMPEG`-Implentierung zum Einsatz.
 ## 3. Extras
 
 ### 3.1 Audioplayer
+Der Audioplayer bietet die Möglichkeit, die Sprachnachricht auch nach der Übersendung an Wit.Ai erneut anzuhören.
+Auf diese Weise können mögliche Fehler im Transkript nachvollzogen und entsprechend verbessert werden.
+Für die Implementierung des Audioplayers kommt der `MediaPlayer` von Android zum Einsatz (s. [hier](https://developer.android.com/guide/topics/media/mediaplayer)).
 
 ### 3.2 Speichern von Texten
 - SharedPreferences
