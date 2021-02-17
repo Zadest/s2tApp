@@ -24,11 +24,12 @@ Das Ziel dieser App ist es daher, empfangene Sprachnachrichten in Text umzuwande
 - Typüberprüfung
 - Zur Weiterverarbeitung übergeben
 
-### 2.2 Konvertierung Opus zu MP3
-Die an unsere App in Schritt 2.1 übersendeten Dateien haben den Dateityp .ogg mit opus-Codec.
+### 2.2 Konvertierung Opus zu MP3 und Splitting der Datei
+Die an unsere App in Schritt 2.1 übersendete Datei hat den Dateityp .ogg mit opus-Codec.
 Wit.Ai kann dieses Format nicht verarbeiten, weshalb eine Konvertierung der Sprachnachricht von .opus nach .mp3 erfolgt.
 Hierfür wird die externe Bibliothek `FFMPEG` verwendet. Die verwendete Implentierung sehen Sie [hier](https://github.com/bravobit/FFmpeg-Android).
-
+Da die Dateilänge für eine Verarbeitung mit Wit.Ai auf 20 Sekunden beschränkt ist, wird die übersendete Datei nach der erfolgreichen Konvertierung in 20 Sekunden-Chunks unterteilt.
+Auch für diesen Schritt kommt die `FFMPEG`-Implentierung zum Einsatz.
 
 ### 2.3 Sprachnachricht an Wit.Ai übertragen
 - HTTP-Kommunikation mithilfe von Retrofit
