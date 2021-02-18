@@ -28,6 +28,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.services.OurUtils;
 import com.example.services.WitAPI;
 
 import org.json.JSONException;
@@ -41,6 +42,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import nl.bravobit.ffmpeg.ExecuteBinaryResponseHandler;
@@ -69,7 +72,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
     String witText = "";
     String fileName;
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+    @RequiresApi(api = Build.VERSION_CODES.O) //TODO: remove requiresAPI annotations by setting API in general to max necessary for our code
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -185,27 +188,23 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private String getFileInfo(Uri uri){
+    public String getFileInfo(Uri uri){
         //Info about current audio file
         Cursor returnCursor = getActivity().getContentResolver().query(uri, null, null, null, null);
         int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
         returnCursor.moveToFirst();
         fileName = returnCursor.getString(nameIndex);
         returnCursor.close();
+        String infoString;
         //file from whatsApp?
         if (fileName.startsWith("PTT-")) {
-            String[] parts = fileName.split("-");
-            String dateOfFile = parts[1];
-            String yearOfFile = dateOfFile.substring(0, 4);
-            String monthOfFile = dateOfFile.substring(4, 6);
-            String dayOfFile = dateOfFile.substring(6, 8);
-            //String.join requires API level 26 (current min is 16)-- > better solution ?
-            String splittedDate = String.join(".", dayOfFile, monthOfFile, yearOfFile);
-            String infoString = "Sprachnachricht vom ".concat(splittedDate);
+            OurUtils utils = new OurUtils();
+            String splittedDate = utils.getSplittedDate(fileName);
+            infoString = "Sprachnachricht vom ".concat(splittedDate);
             return infoString;
             //audio file from other source
         }else{
-            String infoString = "Aktuelle Datei: ".concat(fileName);
+            infoString = "Aktuelle Datei: ".concat(fileName);
             return infoString;
         }
     }
@@ -404,17 +403,18 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
         SharedPreferences.Editor editor = sp.edit();
 
         //generate key to save text with
-        //TODO: find other fallback solution
         String key = "savedText1";
-        if(fileName != null && !fileName.isEmpty() && !personName.isEmpty()){
-            //TODO: structure key in a cleverer way?
+        if(fileName != null && !fileName.isEmpty()){
+            if(!personName.isEmpty()){
             key = fileName + "_" + personName;
+            } else{
+                key = fileName;
+            }
         }
 
         //save text in sp
-        //TODO: check and handle case that key already exists in sp. atm: content gets overwritten!
         editor.putString(key, myText.getText().toString());
-        editor.apply();
+        editor.apply(); //TODO maybe commit
 
         //mirror success to user
         String toastMessage = "Nachricht gespeichert";
