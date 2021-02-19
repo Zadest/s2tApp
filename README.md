@@ -32,7 +32,7 @@ Auch für diesen Schritt kommt die `FFMPEG`-Implementierung zum Einsatz.
 ### 2.3 Übertragung der Sprachnachricht an Wit.Ai
 Zur Umwandlung der in 2.2 umgewandelten und gesplitteten Dateien in Text kommt die Machine-Learning-basierte NLP-API [Wit.Ai](https://wit.ai/) zum Einsatz.
 Die Verbindung erfolgt über HTTP-Requests mithilfe des REST-Clients [Retrofit](https://square.github.io/retrofit/).
-Damit sich die einzelnen Calls nicht überschneiden, und der Text zur Sprachnachricht trotz der Aufteilung des Files in der richtigen Reihenfolge ankommt, wird mit rekursivem Aufruf der entsprechenden Methode "call" gearbeitet.
+Damit sich die einzelnen Calls nicht überschneiden, und der Text zur Sprachnachricht trotz der Aufteilung des Files in der richtigen Reihenfolge ankommt, wird mit rekursivem Aufruf der entsprechenden Methode "callWit" gearbeitet.
 
 ### 2.4 Genutzte Funktionen von Wit.Ai
 Konkret genutzt wird bei Wit.Ai der Endpunkt [/speech](https://wit.ai/docs/http/20200513#post__speech_link).
