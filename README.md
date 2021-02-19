@@ -30,11 +30,14 @@ Da die Dateilänge für eine Verarbeitung mit Wit.Ai auf 20 Sekunden beschränkt
 Auch für diesen Schritt kommt die `FFMPEG`-Implementierung zum Einsatz.
 
 ### 2.3 Übertragung der Sprachnachricht an Wit.Ai
-- HTTP-Kommunikation mithilfe von Retrofit
-- Rekursives Schicken der einzelnen MP3-Dateien
+Zur Umwandlung der in 2.2 umgewandelten und gesplitteten Dateien in Text kommt die Machine-Learning-basierte NLP-API [Wit.Ai](https://wit.ai/) zum Einsatz.
+Die Verbindung erfolgt über HTTP-Requests mithilfe des REST-Clients [Retrofit](https://square.github.io/retrofit/).
+Damit sich die einzelnen Calls nicht überschneiden, und der Text zur Sprachnachricht trotz der Aufteilung des Files in der richtigen Reihenfolge ankommt, wird mit rekursivem Aufruf der entsprechenden Methode "call" gearbeitet.
 
-### 2.4 Wit.Ai - Voodoo
-- Nutzung des /speech-Endpunkts: https://wit.ai/docs/http/20200513#post__speech_link
+### 2.4 Genutzte Funktionen von Wit.Ai
+Konkret genutzt wird bei Wit.Ai der Endpunkt [/speech](https://wit.ai/docs/http/20200513#post__speech_link).
+In dem den Entwicklern zugänglichen User-Interface von Wit.Ai lassen sich erhaltene Ergebnisse redigieren, um so den internen Trainings-Prozess zu beeinflussen und die Umwandlung Schritt für Schritt zu optimieren.
+Dazu gehört nicht nur die Transkription des Textes, sondern auch die Erkennung der Named Entities für Daten und Namen ([wit\datetime](https://wit.ai/docs/built-in-entities/20200513/#wit_datetime) und [wit\contact](https://wit.ai/docs/built-in-entities/20200513/#wit_contact)).
 
 ### 2.5 Rückgabe und Darstellung der Daten
 - Response im JSON-Format
