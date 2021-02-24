@@ -57,6 +57,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 public class StartScreen extends Fragment implements SavingPopup.SavingPopupListener {
+    private static final String PERSISTENT_VARIABLE_BUNDLE_KEY = "persistentVariable";
 
     ImageView play_pause_icon;
     ImageView stop_icon;
@@ -72,13 +73,15 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
     String witText = "";
     String fileName;
 
+    public StartScreen(){
+        setArguments(new Bundle());
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.O) //TODO: remove requiresAPI annotations by setting API in general to max necessary for our code
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-
-        //TODO what to do when coming from savedtexts?
 
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_start_screen, container, false);
@@ -111,8 +114,8 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
 
         speechtotext.setOnClickListener(this::changeTextWithWit);
         //disable buttons that need text for now
-        namedentity.setEnabled(false);
-        savetext.setEnabled(false);
+        namedentity.setEnabled(!witText.isEmpty());
+        savetext.setEnabled(!witText.isEmpty());
         savetext.setOnClickListener(this::openSavingPopup);
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
@@ -129,23 +132,24 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
             //display info about the current audio file
             String currentFilename = getFileInfo(myUri);
             file_info.setText(currentFilename);
-
-            //Prepare Audio for wit.ai (convert from opus to mp3)
-            String FileIn = getInternalDirectory() + "/original.opus";
-            File CopyFile = new File(FileIn);
-            String FileOut = getInternalDirectory() + "/converted.mp3";
-            File convertedFile = new File(FileOut);
-            if(convertedFile.exists()){
-                convertedFile.delete();
+            if(witText.isEmpty()) {
+                //Prepare Audio for wit.ai (convert from opus to mp3)
+                String FileIn = getInternalDirectory() + "/original.opus";
+                File CopyFile = new File(FileIn);
+                String FileOut = getInternalDirectory() + "/converted.mp3";
+                File convertedFile = new File(FileOut);
+                if (convertedFile.exists()) {
+                    convertedFile.delete();
+                }
+                //Copy content from Uri to File "original.opus"
+                try {
+                    copyInputStreamToFile(myUri, CopyFile);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                //Convert ".opus" to ".mp3" with ffmpeg
+                ConvertFromOpusToMp3(FileIn, FileOut);
             }
-            //Copy content from Uri to File "original.opus"
-            try {
-                copyInputStreamToFile(myUri, CopyFile);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            //Convert ".opus" to ".mp3" with ffmpeg
-            ConvertFromOpusToMp3(FileIn, FileOut);
 
         } else {
             file_info.setText(R.string.no_file);
@@ -185,6 +189,14 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
             System.out.println("Yay! Sound da, alles gut!");
         }
         return voiceUri;
+    }
+
+    //persists witText when navigating
+    @Override
+    public void onPause() {
+        super.onPause();
+        String persistentVariable = witText;
+        getArguments().putString(PERSISTENT_VARIABLE_BUNDLE_KEY, persistentVariable);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -349,6 +361,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
 
                         namedentity.setEnabled(true);
                         savetext.setEnabled(true);
+                        speechtotext.setEnabled(false);
 
                         progress.setVisibility(View.INVISIBLE);
                         for (File f: mp3Files){
