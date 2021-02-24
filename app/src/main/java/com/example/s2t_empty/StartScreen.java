@@ -189,22 +189,33 @@ public class StartScreen extends Fragment {
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 try {
                     JSONObject jsn = new JSONObject(response.body().string());
-
                     if(jsn.has("text")) {
                         witText = witText.concat(" " + jsn.getString("text"));
                     }
+                    //Named Entities
                     if (jsn.has("entities")) {
                         JSONObject entities = jsn.getJSONObject("entities");
+                        //dates (wit$datetime:datetime)
                         if (entities.has("wit$datetime:datetime")){
                             JSONArray dates = entities.getJSONArray("wit$datetime:datetime");
-                            for (int i = 1; i < dates.length(); ++i) {
+                            for (int i = 0; i < dates.length(); ++i) {
                                 JSONObject entity = dates.getJSONObject(i);
                                 int start = entity.getInt("start");
                                 int end = entity.getInt("end");
                                 startHighlight.add(start + 1);
                                 endHighlight.add(end + 1);
                             }
-
+                        }
+                        //Persons (contact)
+                        if (entities.has("wit$contact:contact")){
+                            JSONArray contacts = entities.getJSONArray("wit$contact:contact");
+                            for (int i = 0; i < contacts.length(); ++i){
+                                JSONObject contact = contacts.getJSONObject(i);
+                                int start = contact.getInt("start");
+                                int end = contact.getInt("end");
+                                startHighlight.add(start +1);
+                                endHighlight.add(end +1);
+                            }
                         }
                     }
 
