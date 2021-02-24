@@ -2,6 +2,7 @@ package com.example.s2t_empty;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -13,6 +14,8 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import android.provider.OpenableColumns;
+import android.text.SpannableString;
+import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +27,7 @@ import android.widget.TextView;
 
 import com.example.services.WitAPI;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,6 +37,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,6 +66,8 @@ public class StartScreen extends Fragment {
     Button savetext;
 
     String witText = "";
+    List<Integer> startHighlight = new ArrayList<>();
+    List<Integer> endHighlight = new ArrayList<>();
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Nullable
@@ -182,12 +189,36 @@ public class StartScreen extends Fragment {
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 try {
                     JSONObject jsn = new JSONObject(response.body().string());
+
                     if(jsn.has("text")) {
                         witText = witText.concat(" " + jsn.getString("text"));
                     }
+                    if (jsn.has("entities")) {
+                        JSONObject entities = jsn.getJSONObject("entities");
+                        if (entities.has("wit$datetime:datetime")){
+                            JSONArray dates = entities.getJSONArray("wit$datetime:datetime");
+                            for (int i = 1; i < dates.length(); ++i) {
+                                JSONObject entity = dates.getJSONObject(i);
+                                int start = entity.getInt("start");
+                                int end = entity.getInt("end");
+                                startHighlight.add(start + 1);
+                                endHighlight.add(end + 1);
+                            }
+
+                        }
+                    }
+
                     //after last file: show result & clean up
                     if(file == mp3Files.get(mp3Files.size() - 1)){
-                        myText.setText(witText); //TODO: show text completely, layout cuts parts
+                        if (startHighlight.isEmpty()) {
+                            myText.setText(witText);//TODO: show text completely, layout cuts parts
+                        }else{
+                            SpannableString witTextHighlight = new SpannableString(witText);
+                            for (int i =0; i<startHighlight.size(); i++){
+                               witTextHighlight.setSpan(new BackgroundColorSpan(Color.LTGRAY), startHighlight.get(i), endHighlight.get(i), 0);
+                            }
+                            myText.setText(witTextHighlight);
+                        }
 
                         namedentity.setEnabled(true);
                         savetext.setEnabled(true);
@@ -210,7 +241,7 @@ public class StartScreen extends Fragment {
                 call.cancel();
             }
 
-            @Override
+                @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 System.out.println("fail!");
                 t.printStackTrace();
