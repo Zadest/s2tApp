@@ -5,11 +5,14 @@ import java.time.LocalDate;
 public class ListEntryObject {
     //TODO: include key from shared preferences to enable connection?
     //TODO: make it sortable by date?!
+
+    String key;
     String title;
     String text;
     boolean opened;
 
-    public ListEntryObject(String title, String text){
+    public ListEntryObject(String key, String title, String text){
+        this.key = key;
         this.title = title;
         this.text = text;
         opened = false;
@@ -18,6 +21,8 @@ public class ListEntryObject {
     public String getTitle(){
         return title;
     }
+
+    public String getKey() { return key; }
 
     public String getText(){
         return text;

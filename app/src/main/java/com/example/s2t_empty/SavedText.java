@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -48,7 +49,7 @@ public class SavedText extends Fragment {
     private List<ListEntryObject> makeShowableList(HashMap<String, String> sharedPref){
         OurUtils utils = new OurUtils();
         List<ListEntryObject> showableList = new ArrayList<>();
-        sharedPref.entrySet().forEach(input -> showableList.add(new ListEntryObject(utils.makeListEntryTitle(input.getKey()), input.getValue())));
+        sharedPref.entrySet().forEach(input -> showableList.add(new ListEntryObject(input.getKey(), utils.makeListEntryTitle(input.getKey()), input.getValue())));
         return showableList;
     }
 
@@ -86,9 +87,11 @@ public class SavedText extends Fragment {
                 result = view;
             }
 
-            TextView title = (TextView) result.findViewById(R.id.title);
-            TextView subtitle = (TextView) result.findViewById(R.id.subtitle);
+            TextView title = result.findViewById(R.id.title);
+            TextView subtitle = result.findViewById(R.id.subtitle);
+            ImageView deleteIcon = result.findViewById(R.id.delete_icon);
 
+            deleteIcon.setVisibility(View.INVISIBLE);
             ListEntryObject entry = entries.get(i);
             title.setText(entry.getTitle());
             subtitle.setText(defineEntryText(entry));
@@ -98,6 +101,28 @@ public class SavedText extends Fragment {
                 subtitle.setText(defineEntryText(entry));
             });
 
+            result.setOnLongClickListener(v -> {
+                switch (deleteIcon.getVisibility()){
+                    case View.INVISIBLE:
+                        deleteIcon.setVisibility(View.VISIBLE);
+                        break;
+                    case View.VISIBLE:
+                        deleteIcon.setVisibility(View.INVISIBLE);
+                        break;
+                }
+                return true;
+            });
+
+            deleteIcon.setOnClickListener(v -> {
+                SharedPreferences sp = getActivity().getSharedPreferences(String.valueOf(R.string.sp_name), Context.MODE_PRIVATE);
+                if(sp.contains(entries.get(i).getKey())){
+                    SharedPreferences.Editor editor = sp.edit();
+                    editor.remove(entries.get(i).getKey());
+                    editor.apply();
+                    remove(entries.get(i));
+                    this.notifyDataSetChanged();
+                }
+            });
             //TODO: add possibility to delete items?
             return result;
         }
