@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -17,6 +18,8 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import android.provider.OpenableColumns;
+import android.text.SpannableString;
+import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +34,7 @@ import android.widget.Toast;
 import com.example.services.OurUtils;
 import com.example.services.WitAPI;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -40,6 +44,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -71,6 +76,8 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
     Button savetext;
 
     String witText = "";
+    List<Integer> startHighlight = new ArrayList<>();
+    List<Integer> endHighlight = new ArrayList<>();
     String fileName;
 
     public StartScreen(){
@@ -355,9 +362,45 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                     if(jsn.has("text")) {
                         witText = witText.concat(" " + jsn.getString("text"));
                     }
+
+                    //Named Entities
+                    if (jsn.has("entities")) {
+                        JSONObject entities = jsn.getJSONObject("entities");
+                        //dates (wit$datetime:datetime)
+                        if (entities.has("wit$datetime:datetime")){
+                            JSONArray dates = entities.getJSONArray("wit$datetime:datetime");
+                            for (int i = 0; i < dates.length(); ++i) {
+                                JSONObject entity = dates.getJSONObject(i);
+                                int start = entity.getInt("start");
+                                int end = entity.getInt("end");
+                                startHighlight.add(start + 1);
+                                endHighlight.add(end + 1);
+                            }
+                        }
+                        //Persons (contact)
+                        if (entities.has("wit$contact:contact")){
+                            JSONArray contacts = entities.getJSONArray("wit$contact:contact");
+                            for (int i = 0; i < contacts.length(); ++i){
+                                JSONObject contact = contacts.getJSONObject(i);
+                                int start = contact.getInt("start");
+                                int end = contact.getInt("end");
+                                startHighlight.add(start +1);
+                                endHighlight.add(end +1);
+                            }
+                        }
+                    }
+
                     //after last file: show result & clean up
                     if(file == mp3Files.get(mp3Files.size() - 1)){
-                        myText.setText(witText); //TODO: show text completely, layout cuts parts
+                        if (startHighlight.isEmpty()) {
+                            myText.setText(witText);//TODO: show text completely, layout cuts parts
+                        }else{
+                            SpannableString witTextHighlight = new SpannableString(witText);
+                            for (int i =0; i<startHighlight.size(); i++){
+                                witTextHighlight.setSpan(new BackgroundColorSpan(Color.LTGRAY), startHighlight.get(i), endHighlight.get(i), 0);
+                            }
+                            myText.setText(witTextHighlight);
+                        }
 
                         namedentity.setEnabled(true);
                         savetext.setEnabled(true);
