@@ -468,8 +468,16 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
             }
         }
 
+        String value = myText.getText().toString();
+        //add spannable info to text
+        if(!startHighlight.isEmpty() && !endHighlight.isEmpty()){
+            for (int i = 0; i<startHighlight.size(); i++){
+                value = value.concat("_").concat(String.valueOf(startHighlight.get(i))).concat(":").concat(String.valueOf(endHighlight.get(i)));
+            }
+        }
+
         //save text in sp
-        editor.putString(key, myText.getText().toString());
+        editor.putString(key, value);
         editor.apply(); //TODO maybe commit
 
         //mirror success to user

@@ -2,6 +2,7 @@ package com.example.s2t_empty;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -10,6 +11,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.BackgroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -22,6 +26,8 @@ import com.example.model.ListEntryObject;
 import com.example.services.OurUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -47,10 +53,52 @@ public class SavedText extends Fragment {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private List<ListEntryObject> makeShowableList(HashMap<String, String> sharedPref){
-        OurUtils utils = new OurUtils();
         List<ListEntryObject> showableList = new ArrayList<>();
-        sharedPref.entrySet().forEach(input -> showableList.add(new ListEntryObject(input.getKey(), utils.makeListEntryTitle(input.getKey()), input.getValue())));
+        sharedPref.entrySet().forEach(input -> showableList.add(new ListEntryObject(input.getKey(), makeListEntryTitle(input.getKey()), getSpannableText(input.getValue()))));
+        Collections.sort(showableList);
         return showableList;
+    }
+
+    //formats title: <Name> am <Date>
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private String makeListEntryTitle(String fileName){
+        OurUtils utils = new OurUtils();
+        String infoString = "Unbekannte Herkunft";
+        //file from whatsApp?
+        if (fileName.startsWith("PTT-")) {
+            String splittedDate = utils.getSplittedDate(fileName);
+            String nameOfSpeaker ="";
+            String[] parts = fileName.split("_");
+            if (parts.length > 1){
+                nameOfSpeaker = parts[parts.length-1].concat(" ");
+            }
+            infoString = "".concat(nameOfSpeaker).concat("am ").concat(splittedDate);
+        }
+        return  infoString;
+    }
+
+    //extracts and applies info on spans at end of string
+    private SpannableString getSpannableText(String text){
+        String[] parts = text.split("_");
+        SpannableString spannableString;
+        if(parts.length > 1){
+            spannableString = new SpannableString(parts[0]);
+            for (String duo : Arrays.copyOfRange(parts, 1, parts.length)){
+                String[] startEnd = duo.split(":");
+                if(startEnd.length == 2){
+                    try {
+                        int start = Integer.parseInt(startEnd[0]);
+                        int end = Integer.parseInt(startEnd[1]);
+                        spannableString.setSpan(new BackgroundColorSpan(Color.LTGRAY), start, end, 0);
+                    }catch (RuntimeException e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }else{
+            spannableString = new SpannableString(text);
+        }
+        return  spannableString;
     }
 
     private class CustomAdapter extends ArrayAdapter {
@@ -123,15 +171,17 @@ public class SavedText extends Fragment {
                     this.notifyDataSetChanged();
                 }
             });
-            //TODO: add possibility to delete items?
             return result;
         }
 
-        private String defineEntryText(ListEntryObject entry){
+        //switches between open and closed mode
+        private SpannableString defineEntryText(ListEntryObject entry){
             if(entry.isOpenend()) {
                 return entry.getText();
             } else {
-                return entry.getText().substring(0,50) .concat("...");
+                SpannableStringBuilder builder = new SpannableStringBuilder();
+                builder.append(entry.getText().subSequence(0,50)).append("...");
+                return SpannableString.valueOf(builder);
             }
         }
 
