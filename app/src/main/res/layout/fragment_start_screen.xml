@@ -23,41 +23,36 @@
                 android:id="@+id/play_pause"
                 android:layout_width="131dp"
                 android:layout_height="76dp"
+                android:layout_marginStart="64dp"
                 android:src="@drawable/ic_baseline_play_arrow_24"
-                app:layout_constraintBottom_toTopOf="@+id/textView5"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.217"
+                app:layout_constraintBottom_toTopOf="@+id/button_speechtotext"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.038" />
+                app:layout_constraintVertical_bias="1.0" />
 
             <ImageView
                 android:id="@+id/stop_play"
                 android:layout_width="131dp"
                 android:layout_height="76dp"
-                android:layout_marginEnd="24dp"
-                android:layout_marginRight="24dp"
                 android:src="@drawable/ic_baseline_stop_24"
-                app:layout_constraintBottom_toTopOf="@+id/textView5"
+                app:layout_constraintBottom_toTopOf="@+id/button_speechtotext"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.421"
+                app:layout_constraintHorizontal_bias="0.282"
                 app:layout_constraintStart_toEndOf="@+id/play_pause"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.05" />
+                app:layout_constraintVertical_bias="0.484" />
 
             <EditText
                 android:id="@+id/textView5"
-                android:layout_width="371dp"
-                android:layout_height="187dp"
-                android:layout_marginTop="70dp"
+                android:layout_width="370dp"
+                android:layout_height="wrap_content"
+                android:isScrollContainer="true"
                 android:text="@string/textdisplay"
                 android:textSize="20sp"
-                app:layout_constraintBottom_toTopOf="@+id/button_speechtotext"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.4"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.292" />
+                app:layout_constraintTop_toBottomOf="@+id/button_savetext"
+                tools:layout_editor_absoluteY="261dp" />
 
             <Button
                 android:id="@+id/button_speechtotext"
@@ -66,7 +61,10 @@
                 android:text="@string/convert"
                 app:layout_constraintBottom_toTopOf="@+id/button_namedentity"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintHorizontal_bias="0.515"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="1.0" />
 
             <ProgressBar
                 android:id="@+id/progressBar"
@@ -90,30 +88,33 @@
                 android:id="@+id/button_namedentity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
                 android:text="@string/extract"
                 app:layout_constraintBottom_toTopOf="@+id/button_savetext"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.496"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <Button
                 android:id="@+id/button_savetext"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="@string/save"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/textView5"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
                 android:id="@+id/file_info"
-                android:layout_width="237dp"
-                android:layout_height="31dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text=""
-                app:layout_constraintBottom_toTopOf="@+id/button_speechtotext"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView5"
-                app:layout_constraintVertical_bias="1.0" />
+                app:layout_constraintVertical_bias="0.051" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

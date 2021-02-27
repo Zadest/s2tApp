@@ -1,8 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
+    <!--
+        Pastel Theme
+    -->
+    <color name="jet">#312F2F</color>
+    <color name="periwinkle_crayola">#C6D8FF</color>
+    <color name="tea_green">#C5DCA0</color>
+    <color name="mango_tango">#FF8C42</color>
+    <color name="blush">#E75A7C</color>
+
+    <!--
+        Pastel Theme Shades
+    -->
+    <color name="raisin_black">#2A2828</color>
+    <color name="little_boy_blue">#7EA7FF</color>
+    <color name="middle_green_yellow">#ABCC75</color>
+    <color name="safety_orange_blaze_orange">#FF6B0F</color>
+    <color name="amaranth">#E12D57</color>
+
+
+    <!--
+        Preset
+     -->
+    <color name="teal_500">#00BCD4</color>
+    <color name="grey">#CFCFCF</color>
+    <color name="dark_grey">#616161</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
