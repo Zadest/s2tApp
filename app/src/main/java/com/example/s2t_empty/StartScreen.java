@@ -1,5 +1,6 @@
 package com.example.s2t_empty;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -64,6 +65,7 @@ public class StartScreen extends Fragment {
     Button speechtotext;
     Button namedentity;
     Button savetext;
+    ImageView help;
 
     String witText = "";
     List<Integer> startHighlight = new ArrayList<>();
@@ -100,6 +102,7 @@ public class StartScreen extends Fragment {
         //TODO: add functionality to these buttons
         namedentity = root.findViewById(R.id.button_namedentity);
         savetext = root.findViewById(R.id.button_savetext);
+        help = root.findViewById(R.id.button_help);
 
         //disable speechtotext button until converting is done
         speechtotext.setEnabled(false);
@@ -165,6 +168,19 @@ public class StartScreen extends Fragment {
         mp.setOnCompletionListener(mediaPlayer -> {
             // Do something when media player end playing
             play_pause_icon.setImageResource(R.drawable.ic_baseline_play_arrow_24);
+        });
+
+        help.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                builder.setTitle("Die Speech2Text App");
+                builder.setMessage("Hilfe");
+                //builder.setIcon(R.drawable.testpic); TODO: eventuell app-icon einfuegen?
+                builder.setView(R.layout.help_dialog);
+                builder.setPositiveButton("ok", null);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
         });
         return root;
     }
