@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import android.provider.OpenableColumns;
 import android.text.SpannableString;
 import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -397,7 +398,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                         }else{
                             SpannableString witTextHighlight = new SpannableString(witText);
                             for (int i =0; i<startHighlight.size(); i++){
-                                witTextHighlight.setSpan(new BackgroundColorSpan(Color.LTGRAY), startHighlight.get(i), endHighlight.get(i), 0);
+                                witTextHighlight.setSpan(new ForegroundColorSpan(Color.CYAN), startHighlight.get(i), endHighlight.get(i), 0);
                             }
                             myText.setText(witTextHighlight);
                         }
