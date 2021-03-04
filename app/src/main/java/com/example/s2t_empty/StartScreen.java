@@ -342,7 +342,8 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
 
                 //call wit for first mp3 file, others are called recursively if necessary
                 WitAPI witApi = prepareRetrofit();
-                callWit(witApi, mp3Files.get(0), mp3Files);
+                int currentLengthWitText = 0;
+                callWit(witApi, mp3Files.get(0), mp3Files, currentLengthWitText);
             }
         });
     }
@@ -352,7 +353,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
         return retrofit.create(WitAPI.class);
     }
 
-    private void callWit(WitAPI api, File file, List<File> mp3Files){
+    private void callWit(WitAPI api, File file, List<File> mp3Files, int currentLengthWitText){
         Call<ResponseBody> call = api.getMessageFromAudio("audio/mpeg3", RequestBody.create(MediaType.parse("audio/mpeg3"), file));
 
         call.enqueue(new Callback<ResponseBody>() {
@@ -372,8 +373,8 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                             JSONArray dates = entities.getJSONArray("wit$datetime:datetime");
                             for (int i = 0; i < dates.length(); ++i) {
                                 JSONObject entity = dates.getJSONObject(i);
-                                int start = entity.getInt("start");
-                                int end = entity.getInt("end");
+                                int start = entity.getInt("start") + currentLengthWitText;
+                                int end = entity.getInt("end") + currentLengthWitText;
                                 startHighlight.add(start + 1);
                                 endHighlight.add(end + 1);
                             }
@@ -383,8 +384,8 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                             JSONArray contacts = entities.getJSONArray("wit$contact:contact");
                             for (int i = 0; i < contacts.length(); ++i){
                                 JSONObject contact = contacts.getJSONObject(i);
-                                int start = contact.getInt("start");
-                                int end = contact.getInt("end");
+                                int start = contact.getInt("start") + currentLengthWitText;
+                                int end = contact.getInt("end") + currentLengthWitText;
                                 startHighlight.add(start +1);
                                 endHighlight.add(end +1);
                             }
@@ -413,7 +414,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                         }
                     } else{
                         //call method recursively as long as there are files to transcribe
-                        callWit(api,  mp3Files.get(mp3Files.indexOf(file) + 1), mp3Files);
+                        callWit(api,  mp3Files.get(mp3Files.indexOf(file) + 1), mp3Files, witText.length());
                     }
 
 
