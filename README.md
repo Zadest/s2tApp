@@ -30,7 +30,7 @@ Da die Dateilänge für eine Verarbeitung mit Wit.Ai auf 20 Sekunden beschränkt
 Auch für diesen Schritt kommt die `FFMPEG`-Implementierung zum Einsatz.
 
 ### 2.3 Übertragung der Sprachnachricht an Wit.Ai
-Zur Umwandlung der in 2.2 umgewandelten und gesplitteten Dateien in Text kommt die Machine-Learning-basierte NLP-API [Wit.Ai](https://wit.ai/) zum Einsatz.
+Zur Umwandlung der in [2.2](###-2.2-konvertierung-opus-zu-mp3-und-splitting-der-datei) umgewandelten und gesplitteten Dateien in Text kommt die Machine-Learning-basierte NLP-API [Wit.Ai](https://wit.ai/) zum Einsatz.
 Die Verbindung erfolgt über HTTP-Requests mithilfe des REST-Clients [Retrofit](https://square.github.io/retrofit/).
 Damit sich die einzelnen Calls nicht überschneiden, und der Text zur Sprachnachricht trotz der Aufteilung des Files in der richtigen Reihenfolge ankommt, wird mit rekursivem Aufruf der entsprechenden Methode "callWit" gearbeitet.
 
@@ -43,6 +43,7 @@ Dazu gehört nicht nur die Transkription des Textes, sondern auch die Erkennung 
 - Response im JSON-Format
 - Benötigter Text befindet sich unter "text"
 - Layout
+- Named Entities- Anzeige?
 
 ### 2.6 Navigation
 - Fragments als Teilbereiche der App
@@ -56,6 +57,6 @@ Auf diese Weise können mögliche Fehler im Transkript nachvollzogen und entspre
 Für die Implementierung des Audioplayers kommt der `MediaPlayer` von Android zum Einsatz (s. [hier](https://developer.android.com/guide/topics/media/mediaplayer)).
 
 ### 3.2 Speichern von Texten
-- SharedPreferences
-- Popup-Dialog
-
+Zur weiteren Nützlichkeit der App trägt die Option des Speicherns von erzeugten Texten bei. Hier lässt sich in einem Popup-Dialog zusätzlich angeben, von welcher Person die Sprachnachricht ursprünglich stammte. 
+Das Speichern wird hier mithilfe von [SharedPreferences](https://developer.android.com/reference/android/content/SharedPreferences) ausgeführt, was eine performante persistente Speicherung von Strings ermöglicht. Das Speichern der Named Entities wird in der App mithilfe von Stringoperationen ermöglicht.
+In einer weiteren Ansicht der App mit der Überschrift "Saved Texts" (s. [Navigation](###-2.6-navigation)) lassen sich die gespeicherten Texte sichten, nachlesen und bei Bedarf löschen. Sie werden in einer ListView nach Datum der Sprachnachricht sortiert angezeigt. 
