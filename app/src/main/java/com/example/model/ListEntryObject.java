@@ -3,7 +3,6 @@ package com.example.model;
 import android.text.SpannableString;
 
 public class ListEntryObject implements Comparable<ListEntryObject> {
-    //TODO: make it sortable by date?!
 
     String key;
     String title;

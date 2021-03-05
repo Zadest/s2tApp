@@ -13,7 +13,7 @@ import androidx.fragment.app.Fragment;
 
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
-import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -55,7 +55,7 @@ public class SavedText extends Fragment {
     private List<ListEntryObject> makeShowableList(HashMap<String, String> sharedPref){
         List<ListEntryObject> showableList = new ArrayList<>();
         sharedPref.entrySet().forEach(input -> showableList.add(new ListEntryObject(input.getKey(), makeListEntryTitle(input.getKey()), getSpannableText(input.getValue()))));
-        Collections.sort(showableList);
+        Collections.sort(showableList, Collections.reverseOrder());
         return showableList;
     }
 
@@ -89,7 +89,7 @@ public class SavedText extends Fragment {
                     try {
                         int start = Integer.parseInt(startEnd[0]);
                         int end = Integer.parseInt(startEnd[1]);
-                        spannableString.setSpan(new BackgroundColorSpan(Color.LTGRAY), start, end, 0);
+                        spannableString.setSpan(new ForegroundColorSpan(Color.CYAN), start, end, 0);
                     }catch (RuntimeException e){
                         e.printStackTrace();
                     }
@@ -101,7 +101,7 @@ public class SavedText extends Fragment {
         return  spannableString;
     }
 
-    private class CustomAdapter extends ArrayAdapter {
+    private class CustomAdapter extends ArrayAdapter<ListEntryObject> {
         List<ListEntryObject> entries;
 
         public CustomAdapter(@NonNull Context context, int resource, @NonNull List<ListEntryObject> entries) {
@@ -115,7 +115,7 @@ public class SavedText extends Fragment {
         }
 
         @Override
-        public Object getItem(int i) {
+        public ListEntryObject getItem(int i) {
             return entries.get(i);
         }
 

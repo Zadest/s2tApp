@@ -19,8 +19,9 @@ import androidx.fragment.app.Fragment;
 
 import android.provider.OpenableColumns;
 import android.text.SpannableString;
-import android.text.style.BackgroundColorSpan;
+import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,8 +49,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import nl.bravobit.ffmpeg.ExecuteBinaryResponseHandler;
@@ -446,9 +445,9 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
         newFragment.show(getChildFragmentManager(), "savingPopup");
     }
 
-    //handle saving from popup
+    //handle saving when "save" is clicked in popup
     @Override
-    public void onDialogPositiveClick(DialogFragment dialogFragment) {
+    public void saveText(DialogFragment dialogFragment) {
         //extract name that was entered in dialog
         String personName = "";
         Dialog dialog = dialogFragment.getDialog();
@@ -472,15 +471,15 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
 
         String value = myText.getText().toString();
         //add spannable info to text
-        if(!startHighlight.isEmpty() && !endHighlight.isEmpty()){
-            for (int i = 0; i<startHighlight.size(); i++){
-                value = value.concat("_").concat(String.valueOf(startHighlight.get(i))).concat(":").concat(String.valueOf(endHighlight.get(i)));
-            }
+        SpannableStringBuilder spStrB = new SpannableStringBuilder(myText.getText());
+        ForegroundColorSpan[] spans = spStrB.getSpans(0, spStrB.length(), ForegroundColorSpan.class);
+        for(ForegroundColorSpan span: spans){
+            value = value.concat("_").concat(String.valueOf(spStrB.getSpanStart(span))).concat(":").concat(String.valueOf(spStrB.getSpanEnd(span)));
         }
 
         //save text in sp
         editor.putString(key, value);
-        editor.apply(); //TODO maybe commit
+        editor.apply();
 
         //mirror success to user
         String toastMessage = "Nachricht gespeichert";

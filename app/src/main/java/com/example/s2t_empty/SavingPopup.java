@@ -15,7 +15,7 @@ public class SavingPopup extends DialogFragment {
     //enable handling saving from StartScreen
 
     public interface SavingPopupListener{
-        void onDialogPositiveClick(DialogFragment dialog);
+        void saveText(DialogFragment dialog);
     }
 
     SavingPopupListener listener;
@@ -37,7 +37,7 @@ public class SavingPopup extends DialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         builder.setView(inflater.inflate(R.layout.fragment_saving_popup, null))
                 .setTitle(R.string.savingpopup)
-                .setPositiveButton(R.string.save, (dialogInterface, i) -> listener.onDialogPositiveClick(SavingPopup.this))
+                .setPositiveButton(R.string.save, (dialogInterface, i) -> listener.saveText(SavingPopup.this))
                 .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
                 });
         return builder.create();
