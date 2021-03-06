@@ -10,5 +10,5 @@
         android:layout_width="0dp"
         android:layout_height="465dp"
         android:layout_weight="1"
-        app:srcCompat="@drawable/help_app_test" />
+        app:srcCompat="@drawable/help_start_screen" />
 </LinearLayout>

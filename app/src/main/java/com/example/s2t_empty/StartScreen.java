@@ -177,7 +177,7 @@ public class StartScreen extends Fragment {
                 builder.setTitle("Die Speech2Text App");
                 builder.setMessage("Hilfe");
                 //builder.setIcon(R.drawable.testpic); TODO: eventuell app-icon einfuegen?
-                builder.setView(R.layout.help_dialog);
+                builder.setView(R.layout.help_start_screen);
                 builder.setPositiveButton("ok", null);
                 AlertDialog dialog = builder.create();
                 dialog.show();
