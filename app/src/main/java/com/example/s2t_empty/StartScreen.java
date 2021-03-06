@@ -17,7 +17,6 @@ import androidx.fragment.app.Fragment;
 
 import android.provider.OpenableColumns;
 import android.text.SpannableString;
-import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -96,8 +95,8 @@ public class StartScreen extends Fragment {
         progress = root.findViewById(R.id.progressBar);
 
         //MediaPlayer
-        play_pause_icon = root.findViewById(R.id.play_pause);
-        stop_icon = root.findViewById(R.id.stop_play);
+        play_pause_icon = root.findViewById(R.id.button_play_pause);
+        stop_icon = root.findViewById(R.id.button_stop_play);
 
         //Buttons
         speechtotext = root.findViewById(R.id.button_speechtotext);
