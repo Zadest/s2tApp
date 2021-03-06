@@ -43,7 +43,9 @@ Dazu gehört nicht nur die Transkription des Textes, sondern auch die Erkennung 
 - Response im JSON-Format
 - Benötigter Text befindet sich unter "text"
 - Layout
-- Named Entities- Anzeige?
+Die Anzeige der von Wit.Ai erkannten Named Entities erfolgt über [SpannableStrings](https://developer.android.com/reference/android/text/SpannableString).
+In der von Wit.Ai zurückgelieferten Informationen im JSON-Format werden die Start- und Endindices der jeweiligen Entity angegeben. Die Indices
+werden verwendet, um in den SpannableStrings entsprechende Spans zu setzen und diese in ihrer Textfarbe zu ändern.
 
 ### 2.6 Navigation
 - Fragments als Teilbereiche der App
