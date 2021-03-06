@@ -364,7 +364,7 @@ public class StartScreen extends Fragment {
                 try {
                     JSONObject jsn = new JSONObject(response.body().string());
                     if(jsn.has("text")) {
-                        witText = witText.concat(" " + jsn.getString("text"));
+                        witText = witText.concat(jsn.getString("text") + " ");
                         //TODO: maybe find smoother way to show progress here
                         progress.setProgress(progress.getProgress() + Math.round(((float)20000/duration) * 40));
                     }
@@ -388,10 +388,11 @@ public class StartScreen extends Fragment {
                     }
 
 
-                } catch (JSONException |  IOException | NullPointerException e){ //TODO: improve error handling further
+                } catch (JSONException |  IOException | NullPointerException e){ //TODO: improve error handling further, e.g. show message if there is no internet connection
                     e.printStackTrace();
                     progress.setVisibility(View.INVISIBLE);
-                    myText.setText(response.message());
+                    progressState.setText(e.getMessage());
+                    speechtotext.setEnabled(true);
                 }
                 call.cancel();
             }
