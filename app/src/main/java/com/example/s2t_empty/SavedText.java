@@ -1,5 +1,6 @@
 package com.example.s2t_empty;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -32,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class SavedText extends Fragment {
+    ImageView saveTextInfo;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Nullable
@@ -39,15 +41,31 @@ public class SavedText extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         //TODO: maybe add title to page
-
-        // Inflate the layout for this fragment
+                // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_saved_text, container, false);
+        saveTextInfo = view.findViewById(R.id.button_info_save_text);
+
 
         // fill listview with values from shared preferences
         ListView listView = view.findViewById(R.id.listView);
         SharedPreferences sp = getActivity().getSharedPreferences(String.valueOf(R.string.sp_name), Context.MODE_PRIVATE);
         CustomAdapter customAdapter = new CustomAdapter(getActivity(), 0, makeShowableList((HashMap<String, String>) sp.getAll())); //TODO fix warning
         listView.setAdapter(customAdapter);
+
+        // info button
+        saveTextInfo.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                builder.setTitle("Die Speech2Text App");
+                builder.setMessage("Hilfe");
+                //builder.setIcon(R.drawable.testpic); TODO: eventuell app-icon einfuegen?
+                builder.setView(R.layout.help_save_text);
+                builder.setPositiveButton("ok", null);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
+
         return view;
     }
 
