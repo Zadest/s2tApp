@@ -5,12 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".StartScreen">
+
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
 
 
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="-343dp">
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -24,40 +27,38 @@
                 android:layout_width="131dp"
                 android:layout_height="76dp"
                 android:src="@drawable/ic_baseline_play_arrow_24"
-                app:layout_constraintBottom_toTopOf="@+id/textView5"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.217"
+                app:layout_constraintHorizontal_bias="0.343"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.038" />
+                app:layout_constraintVertical_bias="0.213" />
 
             <ImageView
                 android:id="@+id/stop_play"
                 android:layout_width="131dp"
                 android:layout_height="76dp"
                 android:layout_marginEnd="24dp"
-                android:layout_marginRight="24dp"
                 android:src="@drawable/ic_baseline_stop_24"
                 app:layout_constraintBottom_toTopOf="@+id/textView5"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.421"
+                app:layout_constraintHorizontal_bias="0.215"
                 app:layout_constraintStart_toEndOf="@+id/play_pause"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.05" />
+                app:layout_constraintVertical_bias="0.918" />
 
             <EditText
                 android:id="@+id/textView5"
                 android:layout_width="371dp"
                 android:layout_height="187dp"
-                android:layout_marginTop="70dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="31dp"
                 android:text="@string/textdisplay"
                 android:textSize="20sp"
                 app:layout_constraintBottom_toTopOf="@+id/button_speechtotext"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.4"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.292" />
+                app:layout_constraintTop_toBottomOf="@+id/play_pause" />
 
             <Button
                 android:id="@+id/button_speechtotext"
@@ -66,6 +67,7 @@
                 android:text="@string/convert"
                 app:layout_constraintBottom_toTopOf="@+id/button_namedentity"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.518"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <ProgressBar
@@ -93,6 +95,7 @@
                 android:text="@string/extract"
                 app:layout_constraintBottom_toTopOf="@+id/button_savetext"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.552"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <Button
@@ -114,6 +117,20 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView5"
                 app:layout_constraintVertical_bias="1.0" />
+
+            <ImageView
+                android:id="@+id/button_help"
+                android:layout_width="51dp"
+                android:layout_height="0dp"
+                android:layout_marginBottom="16dp"
+                android:contentDescription="@string/help_description"
+                android:src="@android:drawable/ic_menu_help"
+                app:layout_constraintBottom_toTopOf="@+id/stop_play"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.904"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
