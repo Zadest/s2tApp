@@ -53,14 +53,14 @@
                 android:layout_marginStart="24dp"
                 android:layout_marginTop="70dp"
                 android:layout_marginEnd="24dp"
-                android:text="@string/textdisplay"
                 android:textSize="20sp"
+                android:visibility="invisible"
                 app:layout_constraintBottom_toTopOf="@+id/button_speechtotext"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.4"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.292" />
+                app:layout_constraintVertical_bias="0.563" />
 
             <Button
                 android:id="@+id/button_speechtotext"
@@ -73,9 +73,9 @@
 
             <ProgressBar
                 android:id="@+id/progressBar"
-                style="?android:attr/progressBarStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="127dp"
+                android:layout_height="69dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="51dp"
@@ -84,10 +84,23 @@
                 android:visibility="invisible"
                 app:layout_constraintBottom_toTopOf="@+id/file_info"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.498"
+                app:layout_constraintHorizontal_bias="0.492"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/textView5"
-                app:layout_constraintVertical_bias="0.636" />
+                app:layout_constraintVertical_bias="0.759" />
+
+            <TextView
+                android:id="@+id/progressState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Laden..."
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="@+id/progressBar"
+                app:layout_constraintEnd_toEndOf="@+id/textView5"
+                app:layout_constraintHorizontal_bias="0.498"
+                app:layout_constraintStart_toStartOf="@+id/textView5"
+                app:layout_constraintTop_toTopOf="@+id/progressBar"
+                app:layout_constraintVertical_bias="0.86" />
 
             <Button
                 android:id="@+id/button_namedentity"
@@ -109,15 +122,15 @@
 
             <TextView
                 android:id="@+id/file_info"
-                android:layout_width="237dp"
-                android:layout_height="0dp"
-                android:layout_marginTop="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text=""
                 app:layout_constraintBottom_toTopOf="@+id/button_speechtotext"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView5"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="1.0" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

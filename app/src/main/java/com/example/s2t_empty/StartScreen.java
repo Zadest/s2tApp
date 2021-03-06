@@ -54,7 +54,9 @@ public class StartScreen extends Fragment {
     TextView file_info;
     TextView myText;
 
+    int duration;
     ProgressBar progress;
+    TextView progressState;
 
     Button speechtotext;
     Button namedentity;
@@ -83,6 +85,7 @@ public class StartScreen extends Fragment {
         myText = root.findViewById(R.id.textView5);
 
         progress = root.findViewById(R.id.progressBar);
+        progressState = root.findViewById(R.id.progressState);
 
         //MediaPlayer
         play_pause_icon = root.findViewById(R.id.play_pause);
@@ -90,12 +93,8 @@ public class StartScreen extends Fragment {
 
         //Buttons
         speechtotext = root.findViewById(R.id.button_speechtotext);
-        //TODO: add functionality to these buttons
         namedentity = root.findViewById(R.id.button_namedentity);
         savetext = root.findViewById(R.id.button_savetext);
-
-        //disable speechtotext button until converting is done
-        speechtotext.setEnabled(false);
 
         speechtotext.setOnClickListener(this::changeTextWithWit);
         //disable buttons that need text for now
@@ -112,6 +111,9 @@ public class StartScreen extends Fragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            duration = mp.getDuration();
+            //enable speech to text button as file is shared
+            speechtotext.setEnabled(true);
 
             //display info about the current audio file
             String currentFilename = getFileInfo(myUri);
@@ -120,19 +122,12 @@ public class StartScreen extends Fragment {
             //Prepare Audio for wit.ai (convert from opus to mp3)
             String FileIn = getInternalDirectory() + "/original.opus";
             File CopyFile = new File(FileIn);
-            String FileOut = getInternalDirectory() + "/converted.mp3";
-            File convertedFile = new File(FileOut);
-            if(convertedFile.exists()){
-                convertedFile.delete();
-            }
             //Copy content from Uri to File "original.opus"
             try {
                 copyInputStreamToFile(myUri, CopyFile);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-            //Convert ".opus" to ".mp3" with ffmpeg
-            ConvertFromOpusToMp3(FileIn, FileOut);
 
         } else {
             file_info.setText(R.string.no_file);
@@ -234,9 +229,25 @@ public class StartScreen extends Fragment {
         }
     }
 
+    public void changeTextWithWit(View myView) {
+        speechtotext.setEnabled(false);
+        progress.setVisibility(View.VISIBLE);
+        progressState.setVisibility(View.VISIBLE);
+        progressState.setText(R.string.progressState_before);
+        //Convert ".opus" to ".mp3" with ffmpeg
+        String FileIn = getInternalDirectory() + "/original.opus";
+        String FileOut = getInternalDirectory() + "/converted.mp3";
+        File convertedFile = new File(FileOut);
+        if(convertedFile.exists()){
+            convertedFile.delete();
+        }
+        ConvertFromOpusToMp3(FileIn, FileOut);
+        //further functionality happens when converting is finished
+    }
+
     public void ConvertFromOpusToMp3(String In, String Out){
         //show progress
-        progress.setVisibility(View.VISIBLE);
+        progressState.setText(R.string.progressState_mp3);
         FFmpeg ffmpeg = FFmpeg.getInstance(getActivity().getApplicationContext());
         if (FFmpeg.getInstance(getActivity()).isSupported()) {
             // ffmpeg is supported (binary ffmpeg is automatically loaded)
@@ -252,6 +263,13 @@ public class StartScreen extends Fragment {
             }
 
             public void onProgress(String message) {
+                String[] splitStart = message.split("time=");
+                if(splitStart.length > 1){
+                    String[] splitEnd = splitStart[1].split(" bitrate");
+                    int ms = timeStringToMilliSecs(splitEnd[0]);
+                    int prog = ms < duration ? Math.round(((float)ms/duration)*60) : 60;
+                    progress.setProgress(prog);
+                }
                 Log.w(null, message);
             }
 
@@ -262,23 +280,35 @@ public class StartScreen extends Fragment {
 
             public void onFinish() {
                 Log.w(null, "finished");
-                //show that progress is finished, enable speechtotext button
-                progress.setVisibility(View.INVISIBLE);
-                speechtotext.setEnabled(true);
                 //delete opus file after conversion
                 new File(In).delete();
+                progress.setProgress(60);
+                SplitAudioFile(Out);
+                //further functionality happens when splitting is finished
             }
         });
     }
 
-    public void changeTextWithWit(View myView) {
-        progress.setVisibility(View.VISIBLE);
-        String FileOut = getInternalDirectory() + "/converted.mp3";
-        SplitAudioFile(FileOut);
-        //further functionality happens when splitting is finished
+    //TODO: maybe move to utils?
+    private int timeStringToMilliSecs(String timeString){
+        int ms = 0;
+        if(timeString.matches("\\d{2}:\\d{2}:\\d{2}\\.\\d{2}")){
+            String[] parts = timeString.split(":");
+            String hours = parts[0];
+            String minutes = parts[1];
+            String[] secondsAndMilli = parts[2].split("\\.");
+            String seconds = secondsAndMilli[0];
+            String milli = secondsAndMilli[1];
+            ms = ms + (Integer.parseInt(hours) * 3600000) + (Integer.parseInt(minutes) * 60000) +
+                    (Integer.parseInt(seconds) * 1000) + Integer.parseInt(milli);
+        } else {
+            //TODO: add error handling
+        }
+        return ms;
     }
 
     public void SplitAudioFile(String In){
+        progressState.setText(R.string.progressState_split);
         String outDirectory = getInternalDirectory() + "/out%03d.mp3";
         //ffmpeg -i somefile.mp3 -f segment -segment_time 3 -c copy out%03d.mp3
         String[] cmd = new String[]{"-i", In, "-f", "segment", "-segment_time", "19", "-c", "copy", outDirectory};
@@ -313,6 +343,8 @@ public class StartScreen extends Fragment {
 
                 //call wit for first mp3 file, others are called recursively if necessary
                 WitAPI witApi = prepareRetrofit();
+                progress.setProgress(61);
+                progressState.setText(R.string.progressState_wit);
                 callWit(witApi, mp3Files.get(0), mp3Files);
             }
         });
@@ -333,15 +365,20 @@ public class StartScreen extends Fragment {
                     JSONObject jsn = new JSONObject(response.body().string());
                     if(jsn.has("text")) {
                         witText = witText.concat(" " + jsn.getString("text"));
+                        //TODO: maybe find smoother way to show progress here
+                        progress.setProgress(progress.getProgress() + Math.round(((float)20000/duration) * 40));
                     }
                     //after last file: show result & clean up
                     if(file == mp3Files.get(mp3Files.size() - 1)){
-                        myText.setText(witText); //TODO: show text completely, layout cuts parts
+                        progress.setProgress(100);
+                        myText.setVisibility(View.VISIBLE);
+                        myText.setText(witText);
 
                         namedentity.setEnabled(true);
                         savetext.setEnabled(true);
 
                         progress.setVisibility(View.INVISIBLE);
+                        progressState.setVisibility(View.INVISIBLE);
                         for (File f: mp3Files){
                             f.delete();
                         }
