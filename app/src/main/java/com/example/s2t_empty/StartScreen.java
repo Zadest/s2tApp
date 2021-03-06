@@ -199,7 +199,7 @@ public class StartScreen extends Fragment {
     }
 
 
-    private void callWit(WitAPI api, File file, List<File> mp3Files) {
+    private void callWit(WitAPI api, File file, List<File> mp3Files, int currentLengthWitText) {
         Call<ResponseBody> call = api.getMessageFromAudio("audio/mpeg3", RequestBody.create(MediaType.parse("audio/mpeg3"), file));
 
         call.enqueue(new Callback<ResponseBody>() {
@@ -208,7 +208,7 @@ public class StartScreen extends Fragment {
                 try {
                     JSONObject jsn = new JSONObject(response.body().string());
                     if (jsn.has("text")) {
-                        witText = witText.concat(" " + jsn.getString("text"));
+                        witText = witText.concat(jsn.getString("text")+ " ");
                     }
                     //Named Entities
                     if (jsn.has("entities")) {
@@ -218,10 +218,10 @@ public class StartScreen extends Fragment {
                             JSONArray dates = entities.getJSONArray("wit$datetime:datetime");
                             for (int i = 0; i < dates.length(); ++i) {
                                 JSONObject entity = dates.getJSONObject(i);
-                                int start = entity.getInt("start");
-                                int end = entity.getInt("end");
-                                startHighlight.add(start + 1);
-                                endHighlight.add(end + 1);
+                                int start = entity.getInt("start") + currentLengthWitText;
+                                int end = entity.getInt("end") + currentLengthWitText;
+                                startHighlight.add(start);
+                                endHighlight.add(end);
                             }
                         }
                         //Persons (contact)
@@ -229,10 +229,10 @@ public class StartScreen extends Fragment {
                             JSONArray contacts = entities.getJSONArray("wit$contact:contact");
                             for (int i = 0; i < contacts.length(); ++i) {
                                 JSONObject contact = contacts.getJSONObject(i);
-                                int start = contact.getInt("start");
-                                int end = contact.getInt("end");
-                                startHighlight.add(start + 1);
-                                endHighlight.add(end + 1);
+                                int start = contact.getInt("start") + currentLengthWitText;
+                                int end = contact.getInt("end") + currentLengthWitText;
+                                startHighlight.add(start);
+                                endHighlight.add(end);
                             }
                         }
                     }
@@ -258,7 +258,7 @@ public class StartScreen extends Fragment {
                         }
                     } else {
                         //call method recursively as long as there are files to transcribe
-                        callWit(api, mp3Files.get(mp3Files.indexOf(file) + 1), mp3Files);
+                        callWit(api, mp3Files.get(mp3Files.indexOf(file) + 1), mp3Files, witText.length());
                     }
 
 
@@ -423,7 +423,8 @@ public class StartScreen extends Fragment {
 
                 //call wit for first mp3 file, others are called recursively if necessary
                 WitAPI witApi = prepareRetrofit();
-                callWit(witApi, mp3Files.get(0), mp3Files);
+                int currentLengthWitText = 0;
+                callWit(witApi, mp3Files.get(0), mp3Files, currentLengthWitText);
             }
         });
     }
