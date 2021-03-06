@@ -64,7 +64,6 @@ public class StartScreen extends Fragment {
     ProgressBar progress;
 
     Button speechtotext;
-    Button namedentity;
     Button savetext;
     ImageView help;
 
@@ -101,16 +100,14 @@ public class StartScreen extends Fragment {
         //Buttons
         speechtotext = root.findViewById(R.id.button_speechtotext);
         //TODO: add functionality to these buttons
-        namedentity = root.findViewById(R.id.button_namedentity);
         savetext = root.findViewById(R.id.button_savetext);
-        help = root.findViewById(R.id.button_help);
+        help = root.findViewById(R.id.button_info_start_screen);
 
         //disable speechtotext button until converting is done
         speechtotext.setEnabled(false);
 
         speechtotext.setOnClickListener(this::changeTextWithWit);
         //disable buttons that need text for now
-        namedentity.setEnabled(false);
         savetext.setEnabled(false);
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
@@ -248,7 +245,6 @@ public class StartScreen extends Fragment {
                             myText.setText(witTextHighlight);
                         }
 
-                        namedentity.setEnabled(true);
                         savetext.setEnabled(true);
 
                         progress.setVisibility(View.INVISIBLE);
