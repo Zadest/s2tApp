@@ -1,9 +1,13 @@
 package com.example.s2t_empty;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,6 +25,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.services.WitAPI;
 
@@ -230,19 +235,26 @@ public class StartScreen extends Fragment {
     }
 
     public void changeTextWithWit(View myView) {
-        speechtotext.setEnabled(false);
-        progress.setVisibility(View.VISIBLE);
-        progressState.setVisibility(View.VISIBLE);
-        progressState.setText(R.string.progressState_before);
-        //Convert ".opus" to ".mp3" with ffmpeg
-        String FileIn = getInternalDirectory() + "/original.opus";
-        String FileOut = getInternalDirectory() + "/converted.mp3";
-        File convertedFile = new File(FileOut);
-        if(convertedFile.exists()){
-            convertedFile.delete();
+        //check for internet connection before starting workflow
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni = cm.getActiveNetworkInfo();
+        if(ni == null || !ni.isConnectedOrConnecting()){
+            Toast.makeText(getActivity().getApplicationContext(), "No internet connection!", Toast.LENGTH_LONG).show();//TODO maybe customize, show as warning
+        } else {
+            speechtotext.setEnabled(false);
+            progress.setVisibility(View.VISIBLE);
+            progressState.setVisibility(View.VISIBLE);
+            progressState.setText(R.string.progressState_before);
+            //Convert ".opus" to ".mp3" with ffmpeg
+            String FileIn = getInternalDirectory() + "/original.opus";
+            String FileOut = getInternalDirectory() + "/converted.mp3";
+            File convertedFile = new File(FileOut);
+            if(convertedFile.exists()){
+                convertedFile.delete();
+            }
+            ConvertFromOpusToMp3(FileIn, FileOut);
+            //further functionality happens when converting is finished
         }
-        ConvertFromOpusToMp3(FileIn, FileOut);
-        //further functionality happens when converting is finished
     }
 
     public void ConvertFromOpusToMp3(String In, String Out){
@@ -391,7 +403,7 @@ public class StartScreen extends Fragment {
                 } catch (JSONException |  IOException | NullPointerException e){ //TODO: improve error handling further, e.g. show message if there is no internet connection
                     e.printStackTrace();
                     progress.setVisibility(View.INVISIBLE);
-                    progressState.setText(e.getMessage());
+                    progressState.setText(e.getMessage()); //TODO: show warning as toast?
                     speechtotext.setEnabled(true);
                 }
                 call.cancel();
