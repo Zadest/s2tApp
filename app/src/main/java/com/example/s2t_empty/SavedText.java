@@ -42,12 +42,28 @@ public class SavedText extends Fragment {
         //TODO: maybe add title to page
                 // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_saved_text, container, false);
+        ImageView saveTextInfo = view.findViewById(R.id.button_info_save_text);
 
         // fill listview with values from shared preferences
         ListView listView = view.findViewById(R.id.listView);
         SharedPreferences sp = getActivity().getSharedPreferences(String.valueOf(R.string.sp_name), Context.MODE_PRIVATE);
         CustomAdapter customAdapter = new CustomAdapter(getActivity(), 0, makeShowableList((HashMap<String, String>) sp.getAll())); //TODO fix warning
         listView.setAdapter(customAdapter);
+
+
+        // info button
+        saveTextInfo.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                builder.setTitle("Die Speech2Text App");
+                builder.setMessage("Hilfe");
+                //builder.setIcon(R.drawable.testpic); TODO: eventuell app-icon einfuegen?
+                builder.setView(R.layout.help_save_text); //TODO: neuen Screenshot einfügen!
+                builder.setPositiveButton("ok", null);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
 
         return view;
     }
