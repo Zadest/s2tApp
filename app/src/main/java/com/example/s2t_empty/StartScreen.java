@@ -361,7 +361,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                 try {
                     JSONObject jsn = new JSONObject(response.body().string());
                     if(jsn.has("text")) {
-                        witText = witText.concat(" " + jsn.getString("text"));
+                        witText = witText.concat( jsn.getString("text") + " ");
                     }
 
                     //Named Entities
@@ -374,8 +374,8 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                                 JSONObject entity = dates.getJSONObject(i);
                                 int start = entity.getInt("start") + currentLengthWitText;
                                 int end = entity.getInt("end") + currentLengthWitText;
-                                startHighlight.add(start + 1);
-                                endHighlight.add(end + 1);
+                                startHighlight.add(start);
+                                endHighlight.add(end);
                             }
                         }
                         //Persons (contact)
@@ -385,8 +385,8 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                                 JSONObject contact = contacts.getJSONObject(i);
                                 int start = contact.getInt("start") + currentLengthWitText;
                                 int end = contact.getInt("end") + currentLengthWitText;
-                                startHighlight.add(start +1);
-                                endHighlight.add(end +1);
+                                startHighlight.add(start);
+                                endHighlight.add(end);
                             }
                         }
                     }
