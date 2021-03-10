@@ -177,11 +177,11 @@ public class SavedText extends Fragment {
 
         //switches between open and closed mode
         private SpannableString defineEntryText(ListEntryObject entry){
-            if(entry.isOpenend()) {
+            if(entry.isOpenend() || entry.getText().length() <= 51) {
                 return entry.getText();
             } else {
                 SpannableStringBuilder builder = new SpannableStringBuilder();
-                builder.append(entry.getText().subSequence(0,50)).append("...");
+                builder.append(entry.getText().subSequence(0, 50)).append("...");
                 return SpannableString.valueOf(builder);
             }
         }
