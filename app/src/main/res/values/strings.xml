@@ -7,4 +7,5 @@
     <string name="wit_error">Wit doesn\'t want to play with you</string>
     <string name="help_description">about this app</string>
     <string name="done">done</string>
+    <string name="sp_name">MySavedTexts</string>
 </resources>

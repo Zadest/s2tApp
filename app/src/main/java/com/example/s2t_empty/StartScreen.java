@@ -1,8 +1,9 @@
 package com.example.s2t_empty;
 
+import android.app.Dialog;
 import android.content.Context;
-import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.media.AudioManager;
@@ -15,11 +16,14 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import android.provider.OpenableColumns;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -34,6 +38,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.services.OurUtils;
 import com.example.services.WitAPI;
 
 import org.json.JSONArray;
@@ -61,7 +66,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class StartScreen extends Fragment {
+public class StartScreen extends Fragment implements SavingPopup.SavingPopupListener {
+    private static final String PERSISTENT_VARIABLE_BUNDLE_KEY = "persistentVariable";
 
     ImageView play_pause_icon;
     ImageView stop_icon;
@@ -80,8 +86,13 @@ public class StartScreen extends Fragment {
     String witText = "";
     List<Integer> startHighlight = new ArrayList<>();
     List<Integer> endHighlight = new ArrayList<>();
+    String fileName;
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+    public StartScreen(){
+        setArguments(new Bundle());
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O) //TODO: remove requiresAPI annotations by setting API in general to max necessary for our code
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -150,7 +161,8 @@ public class StartScreen extends Fragment {
 
         speechtotext.setOnClickListener(this::changeTextWithWit);
         //disable buttons that need text for now
-        savetext.setEnabled(false);
+        savetext.setEnabled(!witText.isEmpty());
+        savetext.setOnClickListener(this::openSavingPopup);
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             // verarbeite den Intent
@@ -169,15 +181,23 @@ public class StartScreen extends Fragment {
             //display info about the current audio file
             String currentFilename = getFileInfo(myUri);
             file_info.setText(currentFilename);
-
-            //Prepare Audio for wit.ai (convert from opus to mp3)
-            String FileIn = getInternalDirectory() + "/original.opus";
-            File CopyFile = new File(FileIn);
-            //Copy content from Uri to File "original.opus"
-            try {
-                copyInputStreamToFile(myUri, CopyFile);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+            if(witText.isEmpty()) {
+                //Prepare Audio for wit.ai (convert from opus to mp3)
+                String FileIn = getInternalDirectory() + "/original.opus";
+                File CopyFile = new File(FileIn);
+                String FileOut = getInternalDirectory() + "/converted.mp3";
+                File convertedFile = new File(FileOut);
+                if (convertedFile.exists()) {
+                    convertedFile.delete();
+                }
+                //Copy content from Uri to File "original.opus"
+                try {
+                    copyInputStreamToFile(myUri, CopyFile);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                //Convert ".opus" to ".mp3" with ffmpeg
+                ConvertFromOpusToMp3(FileIn, FileOut);
             }
 
         } else {
@@ -233,28 +253,32 @@ public class StartScreen extends Fragment {
         return voiceUri;
     }
 
+    //persists witText when navigating
+    @Override
+    public void onPause() {
+        super.onPause();
+        String persistentVariable = witText;
+        getArguments().putString(PERSISTENT_VARIABLE_BUNDLE_KEY, persistentVariable);
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     private String getFileInfo(Uri uri) {
         //Info about current audio file
         Cursor returnCursor = getActivity().getContentResolver().query(uri, null, null, null, null);
         int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
         returnCursor.moveToFirst();
-        String name = returnCursor.getString(nameIndex);
+        fileName = returnCursor.getString(nameIndex);
         returnCursor.close();
+        String infoString;
         //file from whatsApp?
-        if (name.startsWith("PTT-")) {
-            String[] parts = name.split("-");
-            String dateOfFile = parts[1];
-            String yearOfFile = dateOfFile.substring(0, 4);
-            String monthOfFile = dateOfFile.substring(4, 6);
-            String dayOfFile = dateOfFile.substring(6, 8);
-            //String.join requires API level 26 (current min is 16)-- > better solution ?
-            String splittedDate = String.join(".", dayOfFile, monthOfFile, yearOfFile);
-            String infoString = "Sprachnachricht vom ".concat(splittedDate);
+        if (fileName.startsWith("PTT-")) {
+            OurUtils utils = new OurUtils();
+            String splittedDate = utils.getSplittedDate(fileName);
+            infoString = "Sprachnachricht vom ".concat(splittedDate);
             return infoString;
             //audio file from other source
-        } else {
-            String infoString = "Aktuelle Datei: ".concat(name);
+        }else{
+            infoString = "Aktuelle Datei: ".concat(fileName);
             return infoString;
         }
     }
@@ -513,6 +537,56 @@ public class StartScreen extends Fragment {
                 call.cancel();
             }
         });
+    }
+
+    //open popup to save text
+    public void openSavingPopup(View myView){
+        DialogFragment newFragment = new SavingPopup();
+        newFragment.show(getChildFragmentManager(), "savingPopup");
+    }
+
+    //handle saving when "save" is clicked in popup
+    @Override
+    public void saveText(DialogFragment dialogFragment) {
+        //extract name that was entered in dialog
+        String personName = "";
+        Dialog dialog = dialogFragment.getDialog();
+        if(dialog != null){
+            personName =((EditText) dialog.findViewById(R.id.editTextTextPersonName)).getText().toString();
+        }
+
+        //initialize sp
+        SharedPreferences sp = getActivity().getSharedPreferences(String.valueOf(R.string.sp_name), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+
+        //generate key to save text with
+        String key = "savedText1";
+        if(fileName != null && !fileName.isEmpty()){
+            if(!personName.isEmpty()){
+            key = fileName + "_" + personName;
+            } else{
+                key = fileName;
+            }
+        }
+
+        String value = myText.getText().toString();
+        //add spannable info to text
+        SpannableStringBuilder spStrB = new SpannableStringBuilder(myText.getText());
+        ForegroundColorSpan[] spans = spStrB.getSpans(0, spStrB.length(), ForegroundColorSpan.class);
+        for(ForegroundColorSpan span: spans){
+            value = value.concat("_").concat(String.valueOf(spStrB.getSpanStart(span))).concat(":").concat(String.valueOf(spStrB.getSpanEnd(span)));
+        }
+
+        //save text in sp
+        editor.putString(key, value);
+        editor.apply();
+
+        //mirror success to user
+        String toastMessage = "Nachricht gespeichert";
+        if(!personName.isEmpty()){
+            toastMessage = "Nachricht von " + personName + " gespeichert";
+        }
+        Toast.makeText(getActivity().getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
     }
 
 }

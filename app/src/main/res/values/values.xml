@@ -39,4 +39,13 @@
     <string name="progressState_wit">
         Text wird erzeugt…
     </string>
+    <string name="cancel">
+        Abbrechen
+    </string>
+    <string name="entername">
+        Name der sprechenden Person
+    </string>
+    <string name="savingpopup">
+        Text speichern
+    </string>
 </resources>
