@@ -4,10 +4,10 @@
         <item
             android:id="@+id/start_screen"
             android:icon="@drawable/ic_baseline_home_24"
-            android:title="Start Screen"/>
+            android:title="Start" />
         <item
             android:id="@+id/saved_text"
             android:icon="@drawable/ic_baseline_save_24"
-            android:title="Saved Texts"/>
+            android:title="Archiv" />
     </group>
 </menu>
