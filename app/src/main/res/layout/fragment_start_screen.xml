@@ -36,16 +36,16 @@
 
                 <ImageView
                     android:id="@+id/button_play_pause"
-                    android:layout_width="131dp"
-                    android:layout_height="76dp"
+                    android:layout_width="108dp"
+                    android:layout_height="61dp"
                     android:layout_marginLeft="24dp"
                     android:layout_marginRight="24dp"
                     android:src="@drawable/ic_baseline_play_arrow_24" />
 
                 <ImageView
                     android:id="@+id/button_stop_play"
-                    android:layout_width="131dp"
-                    android:layout_height="76dp"
+                    android:layout_width="120dp"
+                    android:layout_height="match_parent"
                     android:layout_marginLeft="24dp"
                     android:layout_marginRight="24dp"
                     android:src="@drawable/ic_baseline_stop_24" />
@@ -71,10 +71,11 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="50dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="12dp"
                 android:layout_marginEnd="50dp"
                 android:text="@string/convert"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/file_info" />
 
@@ -125,12 +126,13 @@
 
             <TextView
                 android:id="@+id/file_info"
-                android:layout_width="237dp"
-                android:layout_height="31dp"
-                android:layout_marginTop="24dp"
+                android:layout_width="206dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="20dp"
                 android:text=""
                 android:textAlignment="textStart"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.297"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
@@ -158,8 +160,10 @@
                 android:text="@string/textdisplay"
                 app:layout_constraintBottom_toBottomOf="@+id/progressBar"
                 app:layout_constraintEnd_toEndOf="@+id/textView5"
+                app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="@+id/textView5"
-                app:layout_constraintTop_toTopOf="@+id/textView5" />
+                app:layout_constraintTop_toTopOf="@+id/textView5"
+                app:layout_constraintVertical_bias="0.0" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
