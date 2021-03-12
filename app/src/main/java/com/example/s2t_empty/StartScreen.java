@@ -1,9 +1,7 @@
 package com.example.s2t_empty;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -41,7 +39,6 @@ import com.example.services.WitAPI;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -227,97 +224,6 @@ public class StartScreen extends Fragment {
         });
         return root;
     }
-    private void callWit(WitAPI api, File file, List<File> mp3Files, int currentLengthWitText) {
-        Call<ResponseBody> call = api.getMessageFromAudio("audio/mpeg3", RequestBody.create(MediaType.parse("audio/mpeg3"), file));
-
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                try {
-                    JSONObject jsn = new JSONObject(response.body().string());
-                    if (jsn.has("text")) {
-                        witText = witText.concat(jsn.getString("text")+ " ");
-                    }
-                    //Named Entities
-                    if (jsn.has("entities")) {
-                        JSONObject entities = jsn.getJSONObject("entities");
-                        //dates (wit$datetime:datetime)
-                        if (entities.has("wit$datetime:datetime")) {
-                            JSONArray dates = entities.getJSONArray("wit$datetime:datetime");
-                            for (int i = 0; i < dates.length(); ++i) {
-                                JSONObject entity = dates.getJSONObject(i);
-                                int start = entity.getInt("start") + currentLengthWitText;
-                                int end = entity.getInt("end") + currentLengthWitText;
-                                startHighlight.add(start);
-                                endHighlight.add(end);
-                            }
-                        }
-                        //Persons (contact)
-                        if (entities.has("wit$contact:contact")) {
-                            JSONArray contacts = entities.getJSONArray("wit$contact:contact");
-                            for (int i = 0; i < contacts.length(); ++i) {
-                                JSONObject contact = contacts.getJSONObject(i);
-                                int start = contact.getInt("start") + currentLengthWitText;
-                                int end = contact.getInt("end") + currentLengthWitText;
-                                startHighlight.add(start);
-                                endHighlight.add(end);
-                            }
-                        }
-                    }
-
-                    //after last file: show result & clean up
-                    if (file == mp3Files.get(mp3Files.size() - 1)) {
-                        if (startHighlight.isEmpty()) {
-                            myText.setText(witText);//TODO: show text completely, layout cuts parts
-                        } else {
-                            SpannableString witTextHighlight = new SpannableString(witText);
-                            for (int i = 0; i < startHighlight.size(); i++) {
-                                witTextHighlight.setSpan(new ForegroundColorSpan(Color.CYAN), startHighlight.get(i), endHighlight.get(i), 0);
-                            }
-                            myText.setText(witTextHighlight);
-                        }
-
-                        savetext.setEnabled(true);
-
-                        progress.setVisibility(View.INVISIBLE);
-                        for (File f : mp3Files) {
-                            f.delete();
-                        }
-                    } else {
-                        //call method recursively as long as there are files to transcribe
-                        callWit(api, mp3Files.get(mp3Files.indexOf(file) + 1), mp3Files, witText.length());
-                    }
-
-
-                } catch (JSONException | IOException | NullPointerException e) { //TODO: improve error handling further
-                    e.printStackTrace();
-                    progress.setVisibility(View.INVISIBLE);
-                    myText.setText(response.message());
-                }
-                call.cancel();
-
-                myTextViewNotEditable.setText(myText.getText());
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                System.out.println("fail!");
-                t.printStackTrace();
-                progress.setVisibility(View.INVISIBLE);
-
-                for (File f : mp3Files) {
-                    f.delete();
-                }
-                call.cancel();
-            }
-        });
-
-    }
-
-    private WitAPI prepareRetrofit() {
-        Retrofit retrofit = new Retrofit.Builder().baseUrl("https://api.wit.ai/").build();
-        return retrofit.create(WitAPI.class);
-    }
 
     Uri handleSendVoice(Intent intent){
         Uri voiceUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
@@ -469,6 +375,11 @@ public class StartScreen extends Fragment {
         return ms;
     }
 
+    private WitAPI prepareRetrofit() {
+        Retrofit retrofit = new Retrofit.Builder().baseUrl("https://api.wit.ai/").build();
+        return retrofit.create(WitAPI.class);
+    }
+
     public void SplitAudioFile(String In){
         progressState.setText(R.string.progressState_split);
         String outDirectory = getInternalDirectory() + "/out%03d.mp3";
@@ -513,12 +424,7 @@ public class StartScreen extends Fragment {
         });
     }
 
-    private WitAPI prepareRetrofit(){
-        Retrofit retrofit = new Retrofit.Builder().baseUrl("https://api.wit.ai/").build();
-        return retrofit.create(WitAPI.class);
-    }
-
-    private void callWit(WitAPI api, File file, List<File> mp3Files){
+    private void callWit(WitAPI api, File file, List<File> mp3Files, int currentLengthWitText){
         Call<ResponseBody> call = api.getMessageFromAudio("audio/mpeg3", RequestBody.create(MediaType.parse("audio/mpeg3"), file));
 
         call.enqueue(new Callback<ResponseBody>() {
@@ -531,13 +437,47 @@ public class StartScreen extends Fragment {
                         //TODO: maybe find smoother way to show progress here
                         progress.setProgress(progress.getProgress() + Math.round(((float)20000/duration) * 40));
                     }
+                    //Named Entities
+                    if (jsn.has("entities")) {
+                        JSONObject entities = jsn.getJSONObject("entities");
+                        //dates (wit$datetime:datetime)
+                        if (entities.has("wit$datetime:datetime")) {
+                            JSONArray dates = entities.getJSONArray("wit$datetime:datetime");
+                            for (int i = 0; i < dates.length(); ++i) {
+                                JSONObject entity = dates.getJSONObject(i);
+                                int start = entity.getInt("start") + currentLengthWitText;
+                                int end = entity.getInt("end") + currentLengthWitText;
+                                startHighlight.add(start);
+                                endHighlight.add(end);
+                            }
+                        }
+                        //Persons (contact)
+                        if (entities.has("wit$contact:contact")) {
+                            JSONArray contacts = entities.getJSONArray("wit$contact:contact");
+                            for (int i = 0; i < contacts.length(); ++i) {
+                                JSONObject contact = contacts.getJSONObject(i);
+                                int start = contact.getInt("start") + currentLengthWitText;
+                                int end = contact.getInt("end") + currentLengthWitText;
+                                startHighlight.add(start);
+                                endHighlight.add(end);
+                            }
+                        }
+                    }
                     //after last file: show result & clean up
-                    if(file == mp3Files.get(mp3Files.size() - 1)){
-                        progress.setProgress(100);
-                        myText.setVisibility(View.VISIBLE);
-                        myText.setText(witText);
+                    if (file == mp3Files.get(mp3Files.size() - 1)) {
+                        if (startHighlight.isEmpty()) {
+                            myText.setText(witText);//TODO: show text completely, layout cuts parts
+                        } else {
+                            SpannableString witTextHighlight = new SpannableString(witText);
+                            for (int i = 0; i < startHighlight.size(); i++) {
+                                witTextHighlight.setSpan(new ForegroundColorSpan(Color.CYAN), startHighlight.get(i), endHighlight.get(i), 0);
+                            }
+                            myText.setText(witTextHighlight);
+                        }
 
                         savetext.setEnabled(true);
+                        progress.setProgress(100);
+                        myText.setText(witText);
 
                         progress.setVisibility(View.INVISIBLE);
                         progressState.setVisibility(View.INVISIBLE);
@@ -546,7 +486,7 @@ public class StartScreen extends Fragment {
                         }
                     } else{
                         //call method recursively as long as there are files to transcribe
-                        callWit(api,  mp3Files.get(mp3Files.indexOf(file) + 1), mp3Files);
+                        callWit(api,  mp3Files.get(mp3Files.indexOf(file) + 1), mp3Files, witText.length());
                     }
 
 
@@ -557,6 +497,8 @@ public class StartScreen extends Fragment {
                     speechtotext.setEnabled(true);
                 }
                 call.cancel();
+
+                myTextViewNotEditable.setText(myText.getText());
             }
 
             @Override
