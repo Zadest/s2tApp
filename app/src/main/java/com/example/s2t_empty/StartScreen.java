@@ -488,12 +488,14 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                     if (file == mp3Files.get(mp3Files.size() - 1)) {
                         if (startHighlight.isEmpty()) {
                             myText.setText(witText);//TODO: show text completely, layout cuts parts
+                            myTextViewNotEditable.setText(witText);
                         } else {
                             SpannableString witTextHighlight = new SpannableString(witText);
                             for (int i = 0; i < startHighlight.size(); i++) {
                                 witTextHighlight.setSpan(new ForegroundColorSpan(Color.CYAN), startHighlight.get(i), endHighlight.get(i), 0);
                             }
                             myText.setText(witTextHighlight);
+                            myTextViewNotEditable.setText(witTextHighlight);
                         }
 
                         savetext.setEnabled(true);
@@ -518,8 +520,6 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                     speechtotext.setEnabled(true);
                 }
                 call.cancel();
-
-                myTextViewNotEditable.setText(myText.getText());
             }
 
             @Override
