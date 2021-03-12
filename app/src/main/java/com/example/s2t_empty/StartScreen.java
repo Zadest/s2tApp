@@ -1,6 +1,7 @@
-
 package com.example.s2t_empty;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +9,8 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,6 +34,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.services.WitAPI;
 
@@ -68,7 +72,9 @@ public class StartScreen extends Fragment {
     TextView myText;
     TextView myTextViewNotEditable;
 
+    int duration;
     ProgressBar progress;
+    TextView progressState;
 
     Button speechtotext;
     Button savetext;
@@ -134,6 +140,7 @@ public class StartScreen extends Fragment {
         });
 
         progress = root.findViewById(R.id.progressBar);
+        progressState = root.findViewById(R.id.progressState);
 
         //MediaPlayer
         play_pause_icon = root.findViewById(R.id.button_play_pause);
@@ -141,12 +148,8 @@ public class StartScreen extends Fragment {
 
         //Buttons
         speechtotext = root.findViewById(R.id.button_speechtotext);
-        //TODO: add functionality to these buttons
         savetext = root.findViewById(R.id.button_savetext);
         help = root.findViewById(R.id.button_info_start_screen);
-
-        //disable speechtotext button until converting is done
-        speechtotext.setEnabled(false);
 
         speechtotext.setOnClickListener(this::changeTextWithWit);
         //disable buttons that need text for now
@@ -162,23 +165,23 @@ public class StartScreen extends Fragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            duration = mp.getDuration();
+            //enable speech to text button as file is shared
+            speechtotext.setEnabled(true);
 
             //display info about the current audio file
             String currentFilename = getFileInfo(myUri);
             file_info.setText(currentFilename);
 
             //Prepare Audio for wit.ai (convert from opus to mp3)
-            File CopyFile = new File(getInternalDirectory() + "/original.opus");
-            String FileIn = CopyFile.getPath();
-            String FileOut = getInternalDirectory() + "/converted.mp3";
+            String FileIn = getInternalDirectory() + "/original.opus";
+            File CopyFile = new File(FileIn);
             //Copy content from Uri to File "original.opus"
             try {
                 copyInputStreamToFile(myUri, CopyFile);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-            //Convert ".opus" to ".mp3" with ffmpeg
-            ConvertFromOpusToMp3(FileIn, FileOut);
 
         } else {
             file_info.setText(R.string.no_file);
@@ -224,19 +227,6 @@ public class StartScreen extends Fragment {
         });
         return root;
     }
-
-    private String getInternalDirectory() {
-        return getActivity().getApplicationContext().getFilesDir().getAbsolutePath();
-    }
-
-    public void changeTextWithWit(View myView) {
-        progress.setVisibility(View.VISIBLE);
-        String FileOut = getInternalDirectory() + "/converted.mp3";
-        SplitAudioFile(FileOut);
-        //further functionality happens when splitting is finished
-    }
-
-
     private void callWit(WitAPI api, File file, List<File> mp3Files, int currentLengthWitText) {
         Call<ResponseBody> call = api.getMessageFromAudio("audio/mpeg3", RequestBody.create(MediaType.parse("audio/mpeg3"), file));
 
@@ -329,7 +319,7 @@ public class StartScreen extends Fragment {
         return retrofit.create(WitAPI.class);
     }
 
-    Uri handleSendVoice(Intent intent) {
+    Uri handleSendVoice(Intent intent){
         Uri voiceUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
         if (voiceUri != null) {
             System.out.println("Yay! Sound da, alles gut!");
@@ -363,6 +353,10 @@ public class StartScreen extends Fragment {
         }
     }
 
+    private String getInternalDirectory(){
+        return getActivity().getApplicationContext().getFilesDir().getAbsolutePath();
+    }
+
     private void copyInputStreamToFile(Uri uri, File file) throws FileNotFoundException {
         InputStream ins = getActivity().getContentResolver().openInputStream(uri);
         OutputStream out = null;
@@ -390,9 +384,32 @@ public class StartScreen extends Fragment {
         }
     }
 
-    public void ConvertFromOpusToMp3(String In, String Out) {
+    public void changeTextWithWit(View myView) {
+        //check for internet connection before starting workflow
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni = cm.getActiveNetworkInfo();
+        if(ni == null || !ni.isConnectedOrConnecting()){
+            Toast.makeText(getActivity().getApplicationContext(), "No internet connection!", Toast.LENGTH_LONG).show();//TODO maybe customize, show as warning
+        } else {
+            speechtotext.setEnabled(false);
+            progress.setVisibility(View.VISIBLE);
+            progressState.setVisibility(View.VISIBLE);
+            progressState.setText(R.string.progressState_before);
+            //Convert ".opus" to ".mp3" with ffmpeg
+            String FileIn = getInternalDirectory() + "/original.opus";
+            String FileOut = getInternalDirectory() + "/converted.mp3";
+            File convertedFile = new File(FileOut);
+            if(convertedFile.exists()){
+                convertedFile.delete();
+            }
+            ConvertFromOpusToMp3(FileIn, FileOut);
+            //further functionality happens when converting is finished
+        }
+    }
+
+    public void ConvertFromOpusToMp3(String In, String Out){
         //show progress
-        progress.setVisibility(View.VISIBLE);
+        progressState.setText(R.string.progressState_mp3);
         FFmpeg ffmpeg = FFmpeg.getInstance(getActivity().getApplicationContext());
         if (FFmpeg.getInstance(getActivity()).isSupported()) {
             // ffmpeg is supported (binary ffmpeg is automatically loaded)
@@ -408,6 +425,13 @@ public class StartScreen extends Fragment {
             }
 
             public void onProgress(String message) {
+                String[] splitStart = message.split("time=");
+                if(splitStart.length > 1){
+                    String[] splitEnd = splitStart[1].split(" bitrate");
+                    int ms = timeStringToMilliSecs(splitEnd[0]);
+                    int prog = ms < duration ? Math.round(((float)ms/duration)*60) : 60;
+                    progress.setProgress(prog);
+                }
                 Log.w(null, message);
             }
 
@@ -418,16 +442,35 @@ public class StartScreen extends Fragment {
 
             public void onFinish() {
                 Log.w(null, "finished");
-                //show that progress is finished, enable speechtotext button
-                progress.setVisibility(View.INVISIBLE);
-                speechtotext.setEnabled(true);
                 //delete opus file after conversion
                 new File(In).delete();
+                progress.setProgress(60);
+                SplitAudioFile(Out);
+                //further functionality happens when splitting is finished
             }
         });
     }
 
-    public void SplitAudioFile(String In) {
+    //TODO: maybe move to utils?
+    private int timeStringToMilliSecs(String timeString){
+        int ms = 0;
+        if(timeString.matches("\\d{2}:\\d{2}:\\d{2}\\.\\d{2}")){
+            String[] parts = timeString.split(":");
+            String hours = parts[0];
+            String minutes = parts[1];
+            String[] secondsAndMilli = parts[2].split("\\.");
+            String seconds = secondsAndMilli[0];
+            String milli = secondsAndMilli[1];
+            ms = ms + (Integer.parseInt(hours) * 3600000) + (Integer.parseInt(minutes) * 60000) +
+                    (Integer.parseInt(seconds) * 1000) + Integer.parseInt(milli);
+        } else {
+            //TODO: add error handling
+        }
+        return ms;
+    }
+
+    public void SplitAudioFile(String In){
+        progressState.setText(R.string.progressState_split);
         String outDirectory = getInternalDirectory() + "/out%03d.mp3";
         //ffmpeg -i somefile.mp3 -f segment -segment_time 3 -c copy out%03d.mp3
         String[] cmd = new String[]{"-i", In, "-f", "segment", "-segment_time", "19", "-c", "copy", outDirectory};
@@ -462,14 +505,72 @@ public class StartScreen extends Fragment {
 
                 //call wit for first mp3 file, others are called recursively if necessary
                 WitAPI witApi = prepareRetrofit();
+                progress.setProgress(61);
+                progressState.setText(R.string.progressState_wit);
                 int currentLengthWitText = 0;
                 callWit(witApi, mp3Files.get(0), mp3Files, currentLengthWitText);
             }
         });
     }
 
-    private void changeToTextView(View v){
-        TextView myTextView = (TextView) v.findViewById(R.id.textView5);
+    private WitAPI prepareRetrofit(){
+        Retrofit retrofit = new Retrofit.Builder().baseUrl("https://api.wit.ai/").build();
+        return retrofit.create(WitAPI.class);
     }
-}
 
+    private void callWit(WitAPI api, File file, List<File> mp3Files){
+        Call<ResponseBody> call = api.getMessageFromAudio("audio/mpeg3", RequestBody.create(MediaType.parse("audio/mpeg3"), file));
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    JSONObject jsn = new JSONObject(response.body().string());
+                    if(jsn.has("text")) {
+                        witText = witText.concat(jsn.getString("text") + " ");
+                        //TODO: maybe find smoother way to show progress here
+                        progress.setProgress(progress.getProgress() + Math.round(((float)20000/duration) * 40));
+                    }
+                    //after last file: show result & clean up
+                    if(file == mp3Files.get(mp3Files.size() - 1)){
+                        progress.setProgress(100);
+                        myText.setVisibility(View.VISIBLE);
+                        myText.setText(witText);
+
+                        savetext.setEnabled(true);
+
+                        progress.setVisibility(View.INVISIBLE);
+                        progressState.setVisibility(View.INVISIBLE);
+                        for (File f: mp3Files){
+                            f.delete();
+                        }
+                    } else{
+                        //call method recursively as long as there are files to transcribe
+                        callWit(api,  mp3Files.get(mp3Files.indexOf(file) + 1), mp3Files);
+                    }
+
+
+                } catch (JSONException |  IOException | NullPointerException e){ //TODO: improve error handling further, e.g. show message if there is no internet connection
+                    e.printStackTrace();
+                    progress.setVisibility(View.INVISIBLE);
+                    progressState.setText(e.getMessage()); //TODO: show warning as toast?
+                    speechtotext.setEnabled(true);
+                }
+                call.cancel();
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                myText.setText("Call failed: "+ t.getMessage());
+                t.printStackTrace();
+                progress.setVisibility(View.INVISIBLE);
+
+                for(File f: mp3Files){
+                    f.delete();
+                }
+                call.cancel();
+            }
+        });
+    }
+
+}

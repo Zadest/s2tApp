@@ -27,4 +27,16 @@
     <string name="audio">
         Hier kannst du deine Sprachnachricht abhören. Dazu gehören Play, Pause, Rewind.
     </string>
+    <string name="progressState_before">
+        Vorbereiten…
+    </string>
+    <string name="progressState_mp3">
+        Umwandlung in MP3…
+    </string>
+    <string name="progressState_split">
+        Splitte Datei…
+    </string>
+    <string name="progressState_wit">
+        Text wird erzeugt…
+    </string>
 </resources>
