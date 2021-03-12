@@ -2,6 +2,7 @@
 package com.example.s2t_empty;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -19,10 +20,14 @@ import android.provider.OpenableColumns;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -32,6 +37,7 @@ import com.example.services.WitAPI;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -60,6 +66,7 @@ public class StartScreen extends Fragment {
     ImageView stop_icon;
     TextView file_info;
     TextView myText;
+    TextView myTextViewNotEditable;
 
     ProgressBar progress;
 
@@ -89,7 +96,42 @@ public class StartScreen extends Fragment {
         MediaPlayer mp = new MediaPlayer();
         mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
         file_info = root.findViewById(R.id.file_info);
-        myText = root.findViewById(R.id.textView5);
+
+        myText = (EditText) root.findViewById(R.id.textView5);
+        myTextViewNotEditable = (TextView) root.findViewById(R.id.textView2);
+        myText.setVisibility(View.INVISIBLE);
+        myText.setEnabled(false);
+
+        myText.setSingleLine(false);
+        myText.setImeOptions(6);
+        myText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId == EditorInfo.IME_ACTION_DONE){
+                    System.out.println("Fertig mit bearbeiten");
+                    InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(myText.getWindowToken(), 0);
+                    myTextViewNotEditable.setText(myText.getText());
+                    myTextViewNotEditable.setEnabled(true);
+                    myTextViewNotEditable.setVisibility(View.VISIBLE);
+                    myText.setEnabled(false);
+                    myText.setVisibility(View.INVISIBLE);
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        myTextViewNotEditable.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                myText.setVisibility(View.VISIBLE);
+                myTextViewNotEditable.setVisibility(View.INVISIBLE);
+                myText.setEnabled(true);
+                myTextViewNotEditable.setEnabled(false);
+                return false;
+            }
+        });
 
         progress = root.findViewById(R.id.progressBar);
 
@@ -263,6 +305,8 @@ public class StartScreen extends Fragment {
                     myText.setText(response.message());
                 }
                 call.cancel();
+
+                myTextViewNotEditable.setText(myText.getText());
             }
 
             @Override
@@ -422,6 +466,10 @@ public class StartScreen extends Fragment {
                 callWit(witApi, mp3Files.get(0), mp3Files, currentLengthWitText);
             }
         });
+    }
+
+    private void changeToTextView(View v){
+        TextView myTextView = (TextView) v.findViewById(R.id.textView5);
     }
 }
 
