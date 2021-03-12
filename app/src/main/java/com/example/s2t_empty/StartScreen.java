@@ -1,5 +1,6 @@
 package com.example.s2t_empty;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -101,7 +102,6 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
         View root = inflater.inflate(R.layout.fragment_start_screen, container, false);
 
         // Get Intent ( ueberprueft die durch "Share" uebergebene Datei )
-        //TODO: make parts with getActivity() null safe!
         Intent intent = getActivity().getIntent();
         String action = intent.getAction();
         String type = intent.getType();
@@ -174,30 +174,27 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            duration = mp.getDuration();
-            //enable speech to text button as file is shared
-            speechtotext.setEnabled(true);
 
             //display info about the current audio file
             String currentFilename = getFileInfo(myUri);
             file_info.setText(currentFilename);
+            //only when there is no text so far
             if(witText.isEmpty()) {
+                duration = mp.getDuration();
+                //enable speech to text button as file is shared
+                speechtotext.setEnabled(true);
                 //Prepare Audio for wit.ai (convert from opus to mp3)
                 String FileIn = getInternalDirectory() + "/original.opus";
                 File CopyFile = new File(FileIn);
-                String FileOut = getInternalDirectory() + "/converted.mp3";
-                File convertedFile = new File(FileOut);
-                if (convertedFile.exists()) {
-                    convertedFile.delete();
-                }
                 //Copy content from Uri to File "original.opus"
                 try {
                     copyInputStreamToFile(myUri, CopyFile);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
-                //Convert ".opus" to ".mp3" with ffmpeg
-                ConvertFromOpusToMp3(FileIn, FileOut);
+            } else {
+                myTextViewNotEditable.setText(witText);
+                myText.setText(witText);
             }
 
         } else {

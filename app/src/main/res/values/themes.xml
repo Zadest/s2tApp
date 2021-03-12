@@ -14,11 +14,11 @@
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
-    <style name="BottomNavigationView" parent="Theme.S2T_Empty">
+    <!--<style name="BottomNavigationView" parent="Theme.S2T_Empty">
         <item name="colorPrimary">@color/grey</item>
         <item name="iconTint">@color/dark_grey</item>
         <item name="checkedIcon">@color/periwinkle_crayola</item>
         <item name="android:textColor">@color/dark_grey</item>
         <item name="android:textColorSecondary">@color/periwinkle_crayola</item>
-    </style>
+    </style>-->
 </resources>
