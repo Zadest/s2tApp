@@ -28,6 +28,9 @@ import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -82,7 +85,6 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
 
     Button speechtotext;
     Button savetext;
-    ImageView help;
 
     String witText = "";
     List<Integer> startHighlight = new ArrayList<>();
@@ -100,6 +102,9 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                              @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_start_screen, container, false);
+
+        //actionbar
+        setHasOptionsMenu(true);
 
         // Get Intent ( ueberprueft die durch "Share" uebergebene Datei )
         Intent intent = getActivity().getIntent();
@@ -157,7 +162,6 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
         //Buttons
         speechtotext = root.findViewById(R.id.button_speechtotext);
         savetext = root.findViewById(R.id.button_savetext);
-        help = root.findViewById(R.id.button_info_start_screen);
 
         speechtotext.setOnClickListener(this::changeTextWithWit);
         //disable buttons that need text for now
@@ -227,19 +231,30 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
             play_pause_icon.setImageResource(R.drawable.ic_baseline_play_arrow_24);
         });
 
-        help.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-                builder.setTitle("Die Speech2Text App");
-                builder.setMessage("Hilfe");
-                //builder.setIcon(R.drawable.testpic); TODO: eventuell app-icon einfuegen?
-                builder.setView(R.layout.help_start_screen);
-                builder.setPositiveButton("ok", null);
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
-        });
         return root;
+    }
+
+    // action-button in action bar (help)
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        int id = item.getItemId();
+        if (id== R.id.button_info_start_screen){
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setTitle("Die Speech2Text App");
+            builder.setMessage("Hilfe");
+            //builder.setIcon(R.drawable.testpic); TODO: eventuell app-icon einfuegen?
+            builder.setView(R.layout.help_start_screen);
+            builder.setPositiveButton("ok", null);
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    // inflate actionbar
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+        inflater.inflate(R.menu.menu_actionbar, menu);
     }
 
     Uri handleSendVoice(Intent intent){
