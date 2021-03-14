@@ -12,8 +12,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
+import android.text.Html;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -42,13 +44,11 @@ public class SavedText extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        //TODO: maybe add title to page
-                // Inflate the layout for this fragment
+        // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_saved_text, container, false);
 
         // action bar
         setHasOptionsMenu(true);
-
 
         // fill listview with values from shared preferences
         ListView listView = view.findViewById(R.id.listView);
@@ -108,27 +108,15 @@ public class SavedText extends Fragment {
     }
 
     //extracts and applies info on spans at end of string
-    private SpannableString getSpannableText(String text){
-        String[] parts = text.split("_");
-        SpannableString spannableString;
-        if(parts.length > 1){
-            spannableString = new SpannableString(parts[0]);
-            for (String duo : Arrays.copyOfRange(parts, 1, parts.length)){
-                String[] startEnd = duo.split(":");
-                if(startEnd.length == 2){
-                    try {
-                        int start = Integer.parseInt(startEnd[0]);
-                        int end = Integer.parseInt(startEnd[1]);
-                        spannableString.setSpan(new ForegroundColorSpan(Color.CYAN), start, end, 0);
-                    }catch (RuntimeException e){
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }else{
-            spannableString = new SpannableString(text);
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private SpannableString getSpannableText(String htmlValue){
+        CharSequence charSequence = Html.fromHtml(htmlValue, Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE);
+        SpannableStringBuilder spStrB = new SpannableStringBuilder(charSequence);
+        //remove trailing newline chars
+        if(spStrB.charAt(spStrB.length()-2) == '\n' && spStrB.charAt(spStrB.length()-1) == '\n'){
+            spStrB.replace(spStrB.length() -2, spStrB.length(), "");
         }
-        return  spannableString;
+        return SpannableString.valueOf(spStrB);
     }
 
     private class CustomAdapter extends ArrayAdapter<ListEntryObject> {

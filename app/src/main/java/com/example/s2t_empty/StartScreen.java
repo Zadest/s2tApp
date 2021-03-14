@@ -21,10 +21,10 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import android.provider.OpenableColumns;
+import android.text.Html;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
-import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -71,7 +71,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 public class StartScreen extends Fragment implements SavingPopup.SavingPopupListener {
-    private static final String PERSISTENT_VARIABLE_BUNDLE_KEY = "persistentVariable";
+    private static final String WIT_TEXT_VARIABLE_KEY = "witTextKey";
 
     ImageView play_pause_icon;
     ImageView stop_icon;
@@ -86,7 +86,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
     Button speechtotext;
     Button savetext;
 
-    String witText = "";
+    SpannableString witText = new SpannableString("");
     List<Integer> startHighlight = new ArrayList<>();
     List<Integer> endHighlight = new ArrayList<>();
     String fileName;
@@ -123,33 +123,27 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
 
         myText.setSingleLine(false);
         myText.setImeOptions(6);
-        myText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if(actionId == EditorInfo.IME_ACTION_DONE){
-                    System.out.println("Fertig mit bearbeiten");
-                    InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(myText.getWindowToken(), 0);
-                    myTextViewNotEditable.setText(myText.getText());
-                    myTextViewNotEditable.setEnabled(true);
-                    myTextViewNotEditable.setVisibility(View.VISIBLE);
-                    myText.setEnabled(false);
-                    myText.setVisibility(View.INVISIBLE);
-                    return true;
-                }
-                return false;
+        myText.setOnEditorActionListener((v, actionId, event) -> {
+            if(actionId == EditorInfo.IME_ACTION_DONE){
+                System.out.println("Fertig mit bearbeiten");
+                InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(myText.getWindowToken(), 0);
+                myTextViewNotEditable.setText(myText.getText()); //TODO SpannableString?
+                myTextViewNotEditable.setEnabled(true);
+                myTextViewNotEditable.setVisibility(View.VISIBLE);
+                myText.setEnabled(false);
+                myText.setVisibility(View.INVISIBLE);
+                return true;
             }
+            return false;
         });
 
-        myTextViewNotEditable.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                myText.setVisibility(View.VISIBLE);
-                myTextViewNotEditable.setVisibility(View.INVISIBLE);
-                myText.setEnabled(true);
-                myTextViewNotEditable.setEnabled(false);
-                return false;
-            }
+        myTextViewNotEditable.setOnLongClickListener(v -> {
+            myText.setVisibility(View.VISIBLE);
+            myTextViewNotEditable.setVisibility(View.INVISIBLE);
+            myText.setEnabled(true);
+            myTextViewNotEditable.setEnabled(false);
+            return false;
         });
 
         progress = root.findViewById(R.id.progressBar);
@@ -165,7 +159,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
 
         speechtotext.setOnClickListener(this::changeTextWithWit);
         //disable buttons that need text for now
-        savetext.setEnabled(!witText.isEmpty());
+        savetext.setEnabled(witText.length() > 0);
         savetext.setOnClickListener(this::openSavingPopup);
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
@@ -183,22 +177,23 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
             String currentFilename = getFileInfo(myUri);
             file_info.setText(currentFilename);
             //only when there is no text so far
-            if(witText.isEmpty()) {
-                duration = mp.getDuration();
-                //enable speech to text button as file is shared
-                speechtotext.setEnabled(true);
-                //Prepare Audio for wit.ai (convert from opus to mp3)
-                String FileIn = getInternalDirectory() + "/original.opus";
-                File CopyFile = new File(FileIn);
-                //Copy content from Uri to File "original.opus"
-                try {
-                    copyInputStreamToFile(myUri, CopyFile);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
+            if(witText.length() == 0) {
+                myTextViewNotEditable.setText(R.string.tipp_for_file);
             } else {
                 myTextViewNotEditable.setText(witText);
                 myText.setText(witText);
+            }
+            duration = mp.getDuration();
+            //enable speech to text button as file is shared
+            speechtotext.setEnabled(true);
+            //Prepare Audio for wit.ai (convert from opus to mp3)
+            String FileIn = getInternalDirectory() + "/original.opus";
+            File CopyFile = new File(FileIn);
+            //Copy content from Uri to File "original.opus"
+            try {
+                copyInputStreamToFile(myUri, CopyFile);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
             }
 
         } else {
@@ -266,11 +261,13 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
     }
 
     //persists witText when navigating
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onPause() {
         super.onPause();
-        String persistentVariable = witText;
-        getArguments().putString(PERSISTENT_VARIABLE_BUNDLE_KEY, persistentVariable);
+        witText = new SpannableString(myText.getText());
+        getArguments().putString(WIT_TEXT_VARIABLE_KEY, Html.toHtml(witText, Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE) );
+        //TODO: also save open/close state of edit
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -334,6 +331,8 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
             Toast.makeText(getActivity().getApplicationContext(), "No internet connection!", Toast.LENGTH_LONG).show();//TODO maybe customize, show as warning
         } else {
             speechtotext.setEnabled(false);
+            witText = new SpannableString("");
+            myTextViewNotEditable.setText("");
             progress.setVisibility(View.VISIBLE);
             progressState.setVisibility(View.VISIBLE);
             progressState.setText(R.string.progressState_before);
@@ -469,8 +468,9 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                 try {
                     JSONObject jsn = new JSONObject(response.body().string());
                     if(jsn.has("text")) {
-                        witText = witText.concat(jsn.getString("text") + " ");
-                        //TODO: maybe find smoother way to show progress here
+                        SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(witText);
+                        spannableStringBuilder.append(jsn.getString("text") + " ");
+                        witText = SpannableString.valueOf(spannableStringBuilder); //TODO: make witText spannableStrBuilder in the first place?
                         progress.setProgress(progress.getProgress() + Math.round(((float)20000/duration) * 40));
                     }
                     //Named Entities
@@ -502,15 +502,14 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                     //after last file: show result & clean up
                     if (file == mp3Files.get(mp3Files.size() - 1)) {
                         if (startHighlight.isEmpty()) {
-                            myText.setText(witText);//TODO: show text completely, layout cuts parts
+                            myText.setText(witText);
                             myTextViewNotEditable.setText(witText);
                         } else {
-                            SpannableString witTextHighlight = new SpannableString(witText);
                             for (int i = 0; i < startHighlight.size(); i++) {
-                                witTextHighlight.setSpan(new ForegroundColorSpan(Color.CYAN), startHighlight.get(i), endHighlight.get(i), 0);
+                                witText.setSpan(new ForegroundColorSpan(Color.CYAN), startHighlight.get(i), endHighlight.get(i), 0);
                             }
-                            myText.setText(witTextHighlight);
-                            myTextViewNotEditable.setText(witTextHighlight);
+                            myText.setText(witText);
+                            myTextViewNotEditable.setText(witText);
                         }
 
                         savetext.setEnabled(true);
@@ -539,13 +538,15 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                myText.setText("Call failed: "+ t.getMessage());
+                myTextViewNotEditable.setText("Call failed: "+ t.getMessage());
                 t.printStackTrace();
                 progress.setVisibility(View.INVISIBLE);
+                progressState.setVisibility(View.INVISIBLE);
 
                 for(File f: mp3Files){
                     f.delete();
                 }
+                speechtotext.setEnabled(true);
                 call.cancel();
             }
         });
@@ -553,18 +554,23 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
 
     //open popup to save text
     public void openSavingPopup(View myView){
-        DialogFragment newFragment = new SavingPopup();
-        newFragment.show(getChildFragmentManager(), "savingPopup");
+        if(myText.getText().length() > 0) {
+            DialogFragment newFragment = new SavingPopup();
+            newFragment.show(getChildFragmentManager(), "savingPopup");
+        } else {
+            Toast.makeText(getActivity().getApplicationContext(), "Kann keine leere Nachricht speichern", Toast.LENGTH_SHORT).show();
+        }
     }
 
     //handle saving when "save" is clicked in popup
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void saveText(DialogFragment dialogFragment) {
         //extract name that was entered in dialog
         String personName = "";
         Dialog dialog = dialogFragment.getDialog();
-        if(dialog != null){
-            personName =((EditText) dialog.findViewById(R.id.editTextTextPersonName)).getText().toString();
+        if (dialog != null) {
+            personName = ((EditText) dialog.findViewById(R.id.editTextTextPersonName)).getText().toString();
         }
 
         //initialize sp
@@ -573,21 +579,15 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
 
         //generate key to save text with
         String key = "savedText1";
-        if(fileName != null && !fileName.isEmpty()){
-            if(!personName.isEmpty()){
-            key = fileName + "_" + personName;
-            } else{
+        if (fileName != null && !fileName.isEmpty()) {
+            if (!personName.isEmpty()) {
+                key = fileName + "_" + personName;
+            } else {
                 key = fileName;
             }
         }
 
-        String value = myText.getText().toString();
-        //add spannable info to text
-        SpannableStringBuilder spStrB = new SpannableStringBuilder(myText.getText());
-        ForegroundColorSpan[] spans = spStrB.getSpans(0, spStrB.length(), ForegroundColorSpan.class);
-        for(ForegroundColorSpan span: spans){
-            value = value.concat("_").concat(String.valueOf(spStrB.getSpanStart(span))).concat(":").concat(String.valueOf(spStrB.getSpanEnd(span)));
-        }
+        String value = Html.toHtml(new SpannableString(myText.getText()), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE);
 
         //save text in sp
         editor.putString(key, value);
@@ -595,7 +595,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
 
         //mirror success to user
         String toastMessage = "Nachricht gespeichert";
-        if(!personName.isEmpty()){
+        if (!personName.isEmpty()) {
             toastMessage = "Nachricht von " + personName + " gespeichert";
         }
         Toast.makeText(getActivity().getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();

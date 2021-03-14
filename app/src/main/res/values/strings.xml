@@ -8,4 +8,5 @@
     <string name="help_description">about this app</string>
     <string name="done">done</string>
     <string name="sp_name">MySavedTexts</string>
+    <string name="tipp_for_file">Starte den Prozess durch einen Klick auf \'Sprachnachricht umwandeln\'</string>
 </resources>
