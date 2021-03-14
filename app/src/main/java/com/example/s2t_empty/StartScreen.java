@@ -24,7 +24,6 @@ import android.provider.OpenableColumns;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
-import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -237,16 +236,32 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
     // action-button in action bar (help)
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
+        switch(item.getItemId()){
+            case R.id.button_hilfe:
+                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                builder.setTitle("Die Speech2Text App");
+                builder.setMessage("Hilfe");
+                //builder.setIcon(R.drawable.testpic); TODO: eventuell app-icon einfuegen?
+                builder.setView(R.layout.help_start_screen);
+                builder.setPositiveButton("ok", null);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                return true;
+
+            case R.id.button_about:
+                AlertDialog.Builder builder_about = new AlertDialog.Builder(requireContext());
+                builder_about.setTitle("Die Speech2Text App");
+                builder_about.setMessage("About");
+                builder_about.setView(R.layout.about);
+                //builder.setIcon(R.drawable.testpic); TODO: eventuell app-icon einfuegen?
+                builder_about.setPositiveButton("ok", null);
+                AlertDialog dialog_about = builder_about.create();
+                dialog_about.show();
+                return true;
+        }
         int id = item.getItemId();
-        if (id== R.id.button_info_start_screen){
-            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-            builder.setTitle("Die Speech2Text App");
-            builder.setMessage("Hilfe");
-            //builder.setIcon(R.drawable.testpic); TODO: eventuell app-icon einfuegen?
-            builder.setView(R.layout.help_start_screen);
-            builder.setPositiveButton("ok", null);
-            AlertDialog dialog = builder.create();
-            dialog.show();
+        if (id== R.id.button_hilfe){
+
         }
         return super.onOptionsItemSelected(item);
     }

@@ -1,5 +1,6 @@
 package com.example.s2t_empty;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -62,7 +63,7 @@ public class SavedText extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         int id = item.getItemId();
-        if (id== R.id.button_info_start_screen){
+        if (id == R.id.button_hilfe_savedtext) {
             AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
             builder.setTitle("Die Speech2Text App");
             builder.setMessage("Hilfe");
@@ -78,7 +79,7 @@ public class SavedText extends Fragment {
     // inflate actionbar
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
-        inflater.inflate(R.menu.menu_actionbar, menu);
+        inflater.inflate(R.menu.actionbar_saved_text, menu);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
