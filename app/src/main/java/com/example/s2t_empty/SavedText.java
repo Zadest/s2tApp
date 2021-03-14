@@ -16,6 +16,9 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.view.ViewGroup;
@@ -42,7 +45,10 @@ public class SavedText extends Fragment {
         //TODO: maybe add title to page
                 // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_saved_text, container, false);
-        ImageView saveTextInfo = view.findViewById(R.id.button_info_save_text);
+
+        // action bar
+        setHasOptionsMenu(true);
+
 
         // fill listview with values from shared preferences
         ListView listView = view.findViewById(R.id.listView);
@@ -50,22 +56,29 @@ public class SavedText extends Fragment {
         CustomAdapter customAdapter = new CustomAdapter(getActivity(), 0, makeShowableList((HashMap<String, String>) sp.getAll())); //TODO fix warning
         listView.setAdapter(customAdapter);
 
-
-        // info button
-        saveTextInfo.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-                builder.setTitle("Die Speech2Text App");
-                builder.setMessage("Hilfe");
-                //builder.setIcon(R.drawable.testpic); TODO: eventuell app-icon einfuegen?
-                builder.setView(R.layout.help_save_text); //TODO: neuen Screenshot einfügen!
-                builder.setPositiveButton("ok", null);
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
-        });
-
         return view;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        int id = item.getItemId();
+        if (id== R.id.button_info_start_screen){
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setTitle("Die Speech2Text App");
+            builder.setMessage("Hilfe");
+            //builder.setIcon(R.drawable.testpic); TODO: eventuell app-icon einfuegen?
+            builder.setView(R.layout.help_save_text);
+            builder.setPositiveButton("ok", null);
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    // inflate actionbar
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+        inflater.inflate(R.menu.menu_actionbar, menu);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
