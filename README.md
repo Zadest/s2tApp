@@ -40,12 +40,12 @@ In dem den Entwicklern zugänglichen User-Interface von Wit.Ai lassen sich erhal
 Dazu gehört nicht nur die Transkription des Textes, sondern auch die Erkennung der Named Entities für Daten und Namen ([wit\datetime](https://wit.ai/docs/built-in-entities/20200513/#wit_datetime) und [wit\contact](https://wit.ai/docs/built-in-entities/20200513/#wit_contact)).
 
 ### 2.5 Rückgabe und Darstellung der Daten
-- Response im JSON-Format
-- Benötigter Text befindet sich unter "text"
-- Layout<br />
+Die Rückgabe der Daten durch Wit.Ai erfolgt im JSON-Format, siehe noch einmal der [\speech-Endpunkt](https://wit.ai/docs/http/20200513#post__speech_link).
+Aus diesem Format lassen sich die benötigten Informationen über den Text und die erkannten Named Entities extrahieren.
 Die Anzeige der von Wit.Ai erkannten Named Entities erfolgt über [SpannableStrings](https://developer.android.com/reference/android/text/SpannableString).
-In der von Wit.Ai zurückgelieferten Informationen im JSON-Format werden die Start- und Endindices der jeweiligen Entity (hier: wit$contact:contact und wit$datetime:datetime) angegeben. Die Indices
+In der JSON-Response werden die Start- und Endindices der jeweiligen Entity (hier: wit$contact:contact und wit$datetime:datetime) angegeben. Die Indices
 werden verwendet, um in den SpannableStrings entsprechende Spans zu setzen und diese in ihrer Textfarbe zu ändern.
+Weiterhin ist es in der App durch einen langen Klick auf den Text möglich, diesen vorm eventuellen Speichern noch einmal zu bearbeiten.
 
 ### 2.6 Navigation
 - Fragments als Teilbereiche der App
