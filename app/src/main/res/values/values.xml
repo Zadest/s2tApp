@@ -6,6 +6,9 @@
     <string name="textdisplay">
         Teile eine Sprachnachricht aus WhatsApp, um zu beginnen!
     </string>
+    <string name="tipp_for_file">
+        Starte den Prozess durch einen Klick auf \'Sprachnachricht umwandeln\'
+    </string>
     <string name="convert">
         Sprachnachricht umwandeln
     </string>
