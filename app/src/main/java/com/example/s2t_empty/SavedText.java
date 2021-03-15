@@ -54,7 +54,7 @@ public class SavedText extends Fragment {
         // fill listview with values from shared preferences
         ListView listView = view.findViewById(R.id.listView);
         SharedPreferences sp = getActivity().getSharedPreferences(String.valueOf(R.string.sp_name), Context.MODE_PRIVATE);
-        CustomAdapter customAdapter = new CustomAdapter(getActivity(), 0, makeShowableList((HashMap<String, String>) sp.getAll())); //TODO fix warning
+        CustomAdapter customAdapter = new CustomAdapter(getActivity(), 0, makeShowableList((HashMap<String, String>) sp.getAll()));
         listView.setAdapter(customAdapter);
 
         return view;

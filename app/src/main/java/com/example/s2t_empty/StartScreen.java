@@ -128,7 +128,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                 System.out.println("Fertig mit bearbeiten");
                 InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(myText.getWindowToken(), 0);
-                myTextViewNotEditable.setText(myText.getText()); //TODO SpannableString?
+                myTextViewNotEditable.setText(myText.getText());
                 myTextViewNotEditable.setEnabled(true);
                 myTextViewNotEditable.setVisibility(View.VISIBLE);
                 myText.setEnabled(false);
@@ -158,8 +158,8 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
         savetext = root.findViewById(R.id.button_savetext);
 
         speechtotext.setOnClickListener(this::changeTextWithWit);
-        //disable buttons that need text for now
-        savetext.setEnabled(witText.length() > 0);
+        //enable button only when text exists
+        savetext.setEnabled(witText.length() > 0 && !witText.toString().equals(getResources().getString(R.string.textdisplay)) && !witText.toString().equals(getResources().getString(R.string.tipp_for_file)));
         savetext.setOnClickListener(this::openSavingPopup);
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
@@ -344,7 +344,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
         ConnectivityManager cm = (ConnectivityManager) getActivity().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo ni = cm.getActiveNetworkInfo();
         if(ni == null || !ni.isConnectedOrConnecting()){
-            Toast.makeText(getActivity().getApplicationContext(), "No internet connection!", Toast.LENGTH_LONG).show();//TODO maybe customize, show as warning
+            Toast.makeText(getActivity().getApplicationContext(), "No internet connection!", Toast.LENGTH_LONG).show();
         } else {
             speechtotext.setEnabled(false);
             witText = new SpannableString("");
@@ -385,7 +385,8 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                 String[] splitStart = message.split("time=");
                 if(splitStart.length > 1){
                     String[] splitEnd = splitStart[1].split(" bitrate");
-                    int ms = timeStringToMilliSecs(splitEnd[0]);
+                    OurUtils utils = new OurUtils();
+                    int ms = utils.timeStringToMilliSecs(splitEnd[0]);
                     int prog = ms < duration ? Math.round(((float)ms/duration)*60) : 60;
                     progress.setProgress(prog);
                 }
@@ -406,24 +407,6 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                 //further functionality happens when splitting is finished
             }
         });
-    }
-
-    //TODO: maybe move to utils?
-    private int timeStringToMilliSecs(String timeString){
-        int ms = 0;
-        if(timeString.matches("\\d{2}:\\d{2}:\\d{2}\\.\\d{2}")){
-            String[] parts = timeString.split(":");
-            String hours = parts[0];
-            String minutes = parts[1];
-            String[] secondsAndMilli = parts[2].split("\\.");
-            String seconds = secondsAndMilli[0];
-            String milli = secondsAndMilli[1];
-            ms = ms + (Integer.parseInt(hours) * 3600000) + (Integer.parseInt(minutes) * 60000) +
-                    (Integer.parseInt(seconds) * 1000) + Integer.parseInt(milli);
-        } else {
-            //TODO: add error handling
-        }
-        return ms;
     }
 
     private WitAPI prepareRetrofit() {
@@ -486,7 +469,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                     if(jsn.has("text")) {
                         SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(witText);
                         spannableStringBuilder.append(jsn.getString("text") + " ");
-                        witText = SpannableString.valueOf(spannableStringBuilder); //TODO: make witText spannableStrBuilder in the first place?
+                        witText = SpannableString.valueOf(spannableStringBuilder);
                         progress.setProgress(progress.getProgress() + Math.round(((float)20000/duration) * 40));
                     }
                     //Named Entities
@@ -537,16 +520,19 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                         for (File f: mp3Files){
                             f.delete();
                         }
+                        startHighlight = new ArrayList<>();
+                        endHighlight = new ArrayList<>();
                     } else{
                         //call method recursively as long as there are files to transcribe
                         callWit(api,  mp3Files.get(mp3Files.indexOf(file) + 1), mp3Files, witText.length());
                     }
 
 
-                } catch (JSONException |  IOException | NullPointerException e){ //TODO: improve error handling further, e.g. show message if there is no internet connection
+                } catch (JSONException |  IOException | NullPointerException e){ //TODO: improve error handling further
                     e.printStackTrace();
+                    myTextViewNotEditable.setText("Exception: "+ e.getMessage());
                     progress.setVisibility(View.INVISIBLE);
-                    progressState.setText(e.getMessage()); //TODO: show warning as toast?
+                    progressState.setVisibility(View.INVISIBLE);
                     speechtotext.setEnabled(true);
                 }
                 call.cancel();
@@ -554,7 +540,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                myTextViewNotEditable.setText("Call failed: "+ t.getMessage());
+                myTextViewNotEditable.setText("Call fehlgeschlagen: "+ t.getMessage());
                 t.printStackTrace();
                 progress.setVisibility(View.INVISIBLE);
                 progressState.setVisibility(View.INVISIBLE);
@@ -562,6 +548,8 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                 for(File f: mp3Files){
                     f.delete();
                 }
+                startHighlight = new ArrayList<>();
+                endHighlight = new ArrayList<>();
                 speechtotext.setEnabled(true);
                 call.cancel();
             }
