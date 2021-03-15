@@ -24,6 +24,7 @@ import android.provider.OpenableColumns;
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -31,6 +32,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -117,7 +119,9 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
         file_info = root.findViewById(R.id.file_info);
 
         myText = (EditText) root.findViewById(R.id.textView5);
+        Utils.enableScroll(myText);
         myTextViewNotEditable = (TextView) root.findViewById(R.id.textView2);
+        Utils.enableScroll(myTextViewNotEditable);
         myText.setVisibility(View.INVISIBLE);
         myText.setEnabled(false);
 
@@ -603,6 +607,26 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
             toastMessage = "Nachricht von " + personName + " gespeichert";
         }
         Toast.makeText(getActivity().getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    public static class Utils {
+        public static void enableScroll(View view) {
+            if (view instanceof TextView) {
+                TextView textView = (TextView) view;
+                textView.setMovementMethod(new ScrollingMovementMethod());
+            }
+
+            view.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    v.getParent().requestDisallowInterceptTouchEvent(true);
+                    if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
+                        v.getParent().requestDisallowInterceptTouchEvent(false);
+                    }
+                    return false;
+                }
+            });
+        }
     }
 
 }
