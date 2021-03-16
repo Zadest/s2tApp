@@ -27,7 +27,6 @@ import android.text.SpannableStringBuilder;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -46,6 +45,7 @@ import android.widget.Toast;
 
 import com.example.services.OurUtils;
 import com.example.services.WitAPI;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -80,6 +80,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
     TextView file_info;
     TextView myText;
     TextView myTextViewNotEditable;
+    MenuItem menuSavedText;
 
     int duration;
     ProgressBar progress;
@@ -161,6 +162,10 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
         speechtotext = root.findViewById(R.id.button_speechtotext);
         savetext = root.findViewById(R.id.button_savetext);
 
+        // Navigation zum Archiv
+        BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottomNavigationView);
+        menuSavedText = bottomNav.getMenu().getItem(1);
+
         speechtotext.setOnClickListener(this::changeTextWithWit);
         //enable button only when text exists
         savetext.setEnabled(witText.length() > 0 && !witText.toString().equals(getResources().getString(R.string.textdisplay)) && !witText.toString().equals(getResources().getString(R.string.tipp_for_file)));
@@ -190,15 +195,6 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
             duration = mp.getDuration();
             //enable speech to text button as file is shared
             speechtotext.setEnabled(true);
-            //Prepare Audio for wit.ai (convert from opus to mp3)
-            String FileIn = getInternalDirectory() + "/original.opus";
-            File CopyFile = new File(FileIn);
-            //Copy content from Uri to File "original.opus"
-            try {
-                copyInputStreamToFile(myUri, CopyFile);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
 
         } else {
             file_info.setText(R.string.no_file);
@@ -287,7 +283,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
         super.onPause();
         witText = new SpannableString(myText.getText());
         getArguments().putString(WIT_TEXT_VARIABLE_KEY, Html.toHtml(witText, Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE) );
-        //TODO: also save open/close state of edit
+        //TODO: maybe also save open/close state of edit
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -316,6 +312,43 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
         return getActivity().getApplicationContext().getFilesDir().getAbsolutePath();
     }
 
+    public void changeTextWithWit(View myView) {
+        //check for internet connection before starting workflow
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni = cm.getActiveNetworkInfo();
+        if(ni == null || !ni.isConnectedOrConnecting()){
+            Toast.makeText(getActivity().getApplicationContext(), "No internet connection!", Toast.LENGTH_LONG).show();
+        } else {
+            //disable navigation to prevent bug
+            menuSavedText.setEnabled(false);
+            //Prepare Audio for wit.ai
+            String FileIn = getInternalDirectory() + "/original.opus";
+            File CopyFile = new File(FileIn);
+            //Copy content from Uri to File "original.opus"
+            try {
+                copyInputStreamToFile(handleSendVoice(getActivity().getIntent()), CopyFile);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            speechtotext.setEnabled(false);
+            savetext.setEnabled(false);
+            witText = new SpannableString("");
+            myTextViewNotEditable.setText(witText);
+            myText.setText(witText);
+            progress.setVisibility(View.VISIBLE);
+            progressState.setVisibility(View.VISIBLE);
+            progressState.setText(R.string.progressState_before);
+            //Convert ".opus" to ".mp3" with ffmpeg
+            String FileOut = getInternalDirectory() + "/converted.mp3";
+            File convertedFile = new File(FileOut);
+            if(convertedFile.exists()){
+                convertedFile.delete();
+            }
+            ConvertFromOpusToMp3(FileIn, FileOut);
+            //further functionality happens when converting is finished
+        }
+    }
+
     private void copyInputStreamToFile(Uri uri, File file) throws FileNotFoundException {
         InputStream ins = getActivity().getContentResolver().openInputStream(uri);
         OutputStream out = null;
@@ -340,31 +373,6 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    public void changeTextWithWit(View myView) {
-        //check for internet connection before starting workflow
-        ConnectivityManager cm = (ConnectivityManager) getActivity().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo ni = cm.getActiveNetworkInfo();
-        if(ni == null || !ni.isConnectedOrConnecting()){
-            Toast.makeText(getActivity().getApplicationContext(), "No internet connection!", Toast.LENGTH_LONG).show();
-        } else {
-            speechtotext.setEnabled(false);
-            witText = new SpannableString("");
-            myTextViewNotEditable.setText("");
-            progress.setVisibility(View.VISIBLE);
-            progressState.setVisibility(View.VISIBLE);
-            progressState.setText(R.string.progressState_before);
-            //Convert ".opus" to ".mp3" with ffmpeg
-            String FileIn = getInternalDirectory() + "/original.opus";
-            String FileOut = getInternalDirectory() + "/converted.mp3";
-            File convertedFile = new File(FileOut);
-            if(convertedFile.exists()){
-                convertedFile.delete();
-            }
-            ConvertFromOpusToMp3(FileIn, FileOut);
-            //further functionality happens when converting is finished
         }
     }
 
@@ -399,7 +407,13 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
 
             public void onFailure(String message) {
                 Log.w(null, message);
+                myTextViewNotEditable.setText("Umwandlung fehlgeschlagen: " + message);
+                new File(In).delete();
+                new File(Out).delete();
                 progress.setVisibility(View.INVISIBLE);
+                progressState.setVisibility(View.INVISIBLE);
+                speechtotext.setEnabled(true);
+                menuSavedText.setEnabled(true);
             }
 
             public void onFinish() {
@@ -434,8 +448,18 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
 
             }
 
+            @RequiresApi(api = Build.VERSION_CODES.N)
             public void onFailure(String message) {
                 Log.w(null, message);
+                myTextViewNotEditable.setText("Umwandlung fehlgeschlagen: " + message);
+                new File(In).delete();
+                File audioFolder = new File(getInternalDirectory());
+                List<File> mp3Files = Arrays.stream(audioFolder.listFiles()).filter(f -> f.getName().endsWith(".mp3")).collect(Collectors.toList());
+                mp3Files.forEach(f -> f.delete());
+                progress.setVisibility(View.INVISIBLE);
+                progressState.setVisibility(View.INVISIBLE);
+                speechtotext.setEnabled(true);
+                menuSavedText.setEnabled(true);
                 progress.setVisibility(View.INVISIBLE);
             }
 
@@ -516,6 +540,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                         }
 
                         savetext.setEnabled(true);
+                        menuSavedText.setEnabled(true);
                         progress.setProgress(100);
                         myText.setText(witText);
 
@@ -537,7 +562,13 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                     myTextViewNotEditable.setText("Exception: "+ e.getMessage());
                     progress.setVisibility(View.INVISIBLE);
                     progressState.setVisibility(View.INVISIBLE);
+                    startHighlight = new ArrayList<>();
+                    endHighlight = new ArrayList<>();
                     speechtotext.setEnabled(true);
+                    menuSavedText.setEnabled(true);
+                    for (File f: mp3Files){
+                        f.delete();
+                    }
                 }
                 call.cancel();
             }
@@ -555,6 +586,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                 startHighlight = new ArrayList<>();
                 endHighlight = new ArrayList<>();
                 speechtotext.setEnabled(true);
+                menuSavedText.setEnabled(true);
                 call.cancel();
             }
         });
