@@ -129,6 +129,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
         myText.setSingleLine(false);
         myText.setImeOptions(6);
         myText.setOnEditorActionListener((v, actionId, event) -> {
+            System.out.println("Called by"+ actionId);
             if(actionId == EditorInfo.IME_ACTION_DONE){
                 System.out.println("Fertig mit bearbeiten");
                 InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -533,7 +534,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                             myTextViewNotEditable.setText(witText);
                         } else {
                             for (int i = 0; i < startHighlight.size(); i++) {
-                                witText.setSpan(new ForegroundColorSpan(Color.CYAN), startHighlight.get(i), endHighlight.get(i), 0);
+                                witText.setSpan(new ForegroundColorSpan(Color.rgb(3,218,197)), startHighlight.get(i), endHighlight.get(i), 0);
                             }
                             myText.setText(witText);
                             myTextViewNotEditable.setText(witText);
