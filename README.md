@@ -17,15 +17,11 @@ Das Ziel dieser App ist es daher, empfangene Sprachnachrichten in Text umzuwande
 ## 2. Vorgehensweise
 
 ### 2.1 Whatsapp-Sprachnachricht exportieren
-- Intent im Android Manifest "anmelden"
 Im Android Manifest wird ein Intent angemeldet. Der Intent wird in der onCreate-Methode unserer App
 verarbeitet. Um Problemen vorzubeugen wird die geteilte Datei einer Typüberprüfung unterzogen. Es wird
 geprüft, ob eine WhatsApp-Sprachnachrichten im .opus-Format geteilt wurde. Das .opus-Format ist eine
 .ogg-Datei mit .opus-Codec. Wenn die Typüberprüfung erfolgreich war, wird die Datei an die
 Weiterverarbeitung übergeben.
-- Intent in der onCreate Methode unserer Anwendung verarbeiten
-- Typüberprüfung
-- Zur Weiterverarbeitung übergeben
 
 ### 2.2 Konvertierung Opus zu MP3 und Splitting der Datei
 Die an unsere App in Schritt [2.1](#21-whatsapp-sprachnachricht-exportieren) übersendete Datei hat
