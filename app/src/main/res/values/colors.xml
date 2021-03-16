@@ -4,6 +4,7 @@
         Pastel Theme
     -->
     <color name="jet">#312F2F</color>
+    <color name="lightgrey">#6C6A6A</color>
     <color name="periwinkle_crayola">#C6D8FF</color>
     <color name="tea_green">#C5DCA0</color>
     <color name="mango_tango">#FF8C42</color>
