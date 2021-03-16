@@ -62,16 +62,28 @@ public class SavedText extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
-        int id = item.getItemId();
-        if (id == R.id.button_hilfe_savedtext) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-            builder.setTitle("Die Speech2Text App");
-            builder.setMessage("Hilfe");
-            //builder.setIcon(R.drawable.testpic); TODO: eventuell app-icon einfuegen?
-            builder.setView(R.layout.help_save_text);
-            builder.setPositiveButton("ok", null);
-            AlertDialog dialog = builder.create();
-            dialog.show();
+            switch(item.getItemId()){
+                case R.id.button_hilfe:
+                    AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                    builder.setTitle("Die Speech2Text App");
+                    builder.setMessage("Hilfe");
+                    //builder.setIcon(R.drawable.testpic); TODO: eventuell app-icon einfuegen?
+                    builder.setView(R.layout.help_save_text);
+                    builder.setPositiveButton("ok", null);
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                    return true;
+
+                case R.id.button_about:
+                    AlertDialog.Builder builder_about = new AlertDialog.Builder(requireContext());
+                    builder_about.setTitle("Die Speech2Text App");
+                    builder_about.setMessage("About");
+                    builder_about.setView(R.layout.about);
+                    //builder.setIcon(R.drawable.testpic); TODO: eventuell app-icon einfuegen?
+                    builder_about.setPositiveButton("ok", null);
+                    AlertDialog dialog_about = builder_about.create();
+                    dialog_about.show();
+                    return true;
         }
         return super.onOptionsItemSelected(item);
     }
