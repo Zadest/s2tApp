@@ -1,10 +1,8 @@
 package com.example.s2t_empty;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -16,8 +14,6 @@ import androidx.fragment.app.Fragment;
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,7 +29,6 @@ import com.example.model.ListEntryObject;
 import com.example.services.OurUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -161,7 +156,7 @@ public class SavedText extends Fragment {
             final View result;
 
             if (view == null) {
-                result = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_entry, viewGroup, false);
+                result = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.saved_text_list_entry, viewGroup, false);
             } else {
                 result = view;
             }
