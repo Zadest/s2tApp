@@ -1,6 +1,10 @@
 package com.example.services;
 
 import android.os.Build;
+import android.text.method.ScrollingMovementMethod;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
@@ -37,4 +41,24 @@ public class OurUtils {
         return ms;
     }
 
+
+    public static void enableScroll(View view) {
+        if (view instanceof TextView) {
+            TextView textView = (TextView) view;
+            textView.setMovementMethod(new ScrollingMovementMethod());
+        }
+
+        view.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                v.getParent().requestDisallowInterceptTouchEvent(true);
+                if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
+                    v.getParent().requestDisallowInterceptTouchEvent(false);
+                }
+                return false;
+            }
+        });
+    }
 }
+
+

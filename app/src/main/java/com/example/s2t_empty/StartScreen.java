@@ -120,9 +120,9 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
         file_info = root.findViewById(R.id.file_info);
 
         myText = (EditText) root.findViewById(R.id.textView5);
-        Utils.enableScroll(myText);
+        OurUtils.enableScroll(myText);
         myTextViewNotEditable = (TextView) root.findViewById(R.id.textView2);
-        Utils.enableScroll(myTextViewNotEditable);
+        OurUtils.enableScroll(myTextViewNotEditable);
         myText.setVisibility(View.INVISIBLE);
         myText.setEnabled(false);
 
@@ -256,10 +256,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                 dialog_about.show();
                 return true;
         }
-        int id = item.getItemId();
-        if (id== R.id.button_hilfe){
 
-        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -642,24 +639,5 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
         Toast.makeText(getActivity().getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
     }
 
-    public static class Utils {
-        public static void enableScroll(View view) {
-            if (view instanceof TextView) {
-                TextView textView = (TextView) view;
-                textView.setMovementMethod(new ScrollingMovementMethod());
-            }
-
-            view.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    v.getParent().requestDisallowInterceptTouchEvent(true);
-                    if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
-                        v.getParent().requestDisallowInterceptTouchEvent(false);
-                    }
-                    return false;
-                }
-            });
-        }
-    }
 
 }
