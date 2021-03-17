@@ -98,7 +98,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
         setArguments(new Bundle());
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O) //TODO: remove requiresAPI annotations by setting API in general to max necessary for our code
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -281,7 +281,6 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
         super.onPause();
         witText = new SpannableString(myText.getText());
         getArguments().putString(WIT_TEXT_VARIABLE_KEY, Html.toHtml(witText, Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE) );
-        //TODO: maybe also save open/close state of edit
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -555,7 +554,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                     }
 
 
-                } catch (JSONException |  IOException | NullPointerException e){ //TODO: improve error handling further
+                } catch (JSONException |  IOException | NullPointerException e){
                     e.printStackTrace();
                     myTextViewNotEditable.setText("Exception: "+ e.getMessage());
                     progress.setVisibility(View.INVISIBLE);
