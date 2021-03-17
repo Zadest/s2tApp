@@ -238,7 +238,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                 AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
                 builder.setTitle("Die Speech2Text App");
                 builder.setMessage("Hilfe");
-                //builder.setIcon(R.drawable.testpic); TODO: eventuell app-icon einfuegen?
+                builder.setIcon(R.mipmap.s2t_launcher);
                 builder.setView(R.layout.help_start_screen);
                 builder.setPositiveButton("ok", null);
                 AlertDialog dialog = builder.create();
@@ -250,7 +250,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
                 builder_about.setTitle("Die Speech2Text App");
                 builder_about.setMessage("About");
                 builder_about.setView(R.layout.about);
-                //builder.setIcon(R.drawable.testpic); TODO: eventuell app-icon einfuegen?
+                builder_about.setIcon(R.mipmap.s2t_launcher);
                 builder_about.setPositiveButton("ok", null);
                 AlertDialog dialog_about = builder_about.create();
                 dialog_about.show();
