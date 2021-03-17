@@ -58,7 +58,7 @@ public class SavedText extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
             switch(item.getItemId()){
-                case R.id.button_hilfe:
+                case R.id.button_hilfe_savedtext:
                     AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
                     builder.setTitle("Die Speech2Text App");
                     builder.setMessage("Hilfe");
