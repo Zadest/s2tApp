@@ -236,8 +236,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
         switch(item.getItemId()){
             case R.id.button_hilfe:
                 AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-                builder.setTitle("Die Speech2Text App");
-                builder.setMessage("Hilfe");
+                builder.setTitle("Hilfe");
                 builder.setIcon(R.mipmap.s2t_launcher);
                 builder.setView(R.layout.help_start_screen);
                 builder.setPositiveButton("ok", null);
@@ -247,8 +246,7 @@ public class StartScreen extends Fragment implements SavingPopup.SavingPopupList
 
             case R.id.button_about:
                 AlertDialog.Builder builder_about = new AlertDialog.Builder(requireContext());
-                builder_about.setTitle("Die Speech2Text App");
-                builder_about.setMessage("About");
+                builder_about.setTitle("About");
                 builder_about.setView(R.layout.about);
                 builder_about.setIcon(R.mipmap.s2t_launcher);
                 builder_about.setPositiveButton("ok", null);
