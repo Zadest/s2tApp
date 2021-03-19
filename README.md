@@ -23,7 +23,7 @@ geprüft, ob eine WhatsApp-Sprachnachrichten im .opus-Format geteilt wurde. Das 
 .ogg-Datei mit .opus-Codec. Wenn die Typüberprüfung erfolgreich war, wird die Datei an die
 Weiterverarbeitung übergeben.
 
-<div style="text-aling:center;">![share](https://user-images.githubusercontent.com/23056751/111760636-3b3d9000-889f-11eb-979f-92a166f94f12.png)
+<div style="text-aling:center;"><img src="https://user-images.githubusercontent.com/23056751/111760636-3b3d9000-889f-11eb-979f-92a166f94f12.png">
 </div>
 
 ### 2.2 Konvertierung Opus zu MP3 und Splitting der Datei
