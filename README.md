@@ -63,7 +63,7 @@ ist es in der App durch einen langen Klick auf den Text möglich, diesen vorm ev
 noch einmal zu bearbeiten.
 
 
-<img align="center" src="https://user-images.githubusercontent.com/23056751/111760698-4ee8f680-889f-11eb-80f8-55109c2d421e.png" alt="Umwandeln von Sprache in Text">
+<img align="center" width="482px" height="500px" src="https://user-images.githubusercontent.com/23056751/111760698-4ee8f680-889f-11eb-80f8-55109c2d421e.png" alt="Umwandeln von Sprache in Text">
 
 ### 2.6 Navigation
 Die Navigation in der App geschieht über eine BottomNavigation und Fragments, die Teilbereiche der App
@@ -93,5 +93,5 @@ mit der Überschrift "Archiv" (s. [Navigation](#26-navigation)) lassen sich die 
 nachlesen und bei Bedarf löschen. Eine Bearbeitung ist hier nicht mehr möglich. Sie werden in einer
 ListView nach Datum der Sprachnachricht sortiert angezeigt.
 
-<img align="center" src="https://user-images.githubusercontent.com/23056751/111760729-58725e80-889f-11eb-9e71-3bfa62eb6fc7.png" alt="Speichern von Texten">
+<img align="center" width="482px" height="500px" src="https://user-images.githubusercontent.com/23056751/111760729-58725e80-889f-11eb-9e71-3bfa62eb6fc7.png" alt="Speichern von Texten">
 
