@@ -10,7 +10,7 @@ Speech-to-text App für Android Phones
 
 ## 1. Grundidee
 Immer häufiger verwenden wir bei der Nutzung von Instant Messaging Diensten wie bspw. Whatsapp die mitgelieferten Sprachnachrichtsfunktionen. Mit diesen können eingesprochene Nachrichten aufgenommen und versendet werden. Diese Sprachnachrichten bleiben im Chat-Verlauf bestehen und sind zu jedem späteren Zeitpunkt anzuhören.
-Mit dieser Möglichkeit, eine Nachricht durch eigene Aussprache mehr Information zukommen zu lassen als einem geschrieben Text, ist allerdings auch das Abrufen der Nachricht eingeschränkt. Im Alltag gibt es immer Situationen, in denen wir die Zeit haben eine Nachricht zu lesen, aber nicht eine Sound-Datei anzuhören. Auch das erneute Abrufen von Informationen innerhalb einer Sprachnachricht ist nicht durch ein einfaches Überfliegen der Nachricht getan.
+Mit dieser Möglichkeit, einer Nachricht durch eigene Aussprache mehr Information zukommen zu lassen als einem geschrieben Text, ist allerdings auch das Abrufen der Nachricht eingeschränkt. Im Alltag gibt es immer Situationen, in denen wir die Zeit haben eine Nachricht zu lesen, aber nicht eine Sound-Datei anzuhören. Auch das erneute Abrufen von Informationen innerhalb einer Sprachnachricht ist nicht durch ein einfaches Überfliegen der Nachricht getan.
 
 Das Ziel dieser App ist es daher, empfangene Sprachnachrichten in Text umzuwandeln, um eine bessere (Wieder-)verwendbarkeit und Abrufbarkeit der Informationen zu ermöglichen.
 
@@ -53,8 +53,8 @@ Daten und Namen ([wit\datetime](https://wit.ai/docs/built-in-entities/20200513/#
 ### 2.5 Rückgabe und Darstellung der Daten
 Die Rückgabe der Daten durch Wit.Ai erfolgt im JSON-Format, siehe noch einmal der [\speech-Endpunkt]
 (https://wit.ai/docs/http/20200513#post__speech_link).
-Aus diesem Format lassen sich die benötigten Informationen über den Text und die erkannten Named Entities extrahieren.
-Die Anzeige der von Wit.Ai erkannten Named Entities erfolgt über [SpannableStrings]
+Aus diesem Format lassen sich die benötigten Informationen über den Text und die Named Entities extrahieren.
+Die Anzeige der von Wit.Ai erkannten Named Entities erfolgt in der Android-App über [SpannableStrings]
 (https://developer.android.com/reference/android/text/SpannableString).
 In der JSON-Response werden die Start- und Endindices der jeweiligen Entity
 (hier: wit$contact:contact und wit$datetime:datetime) angegeben. Die Indices werden verwendet, um in
@@ -67,11 +67,11 @@ noch einmal zu bearbeiten.
 
 ### 2.6 Navigation
 Die Navigation in der App geschieht über eine BottomNavigation und Fragments, die Teilbereiche der App
-darstellen. Für jedes Fragment ist eine Java-Klasse, für die Funktionalität, und eine XML-Ressourcen-Datei,
-für die Definition des Layouts, festgelegt. Die Oberfläche der App ist eine statische Oberfläche in die
+darstellen. Für jedes Fragment ist eine Java-Klasse für die Funktionalität und eine XML-Ressourcen-Datei
+für die Definition des Layouts festgelegt. Die Oberfläche der App ist eine statische Oberfläche, in die
 beim Anklicken der Items in der Menüleiste flexibel die Layouts geladen werden. Diese werden in einer FragmentView
-angezeigt, die auch das Ausführen der Funktionalitäten ermöglicht. Beim Wechseln zwischen den Ansichten, wird
-der aktuelle Zustand gespeichert und bleibt beim Zurückwechseln erhalten. Beim ersten Öffnen oder Teilen
+angezeigt, die auch das Ausführen der Funktionalitäten ermöglicht. Beim Wechseln zwischen den Ansichten wird
+der aktuelle Zustand des Textes gespeichert und bleibt beim Zurückwechseln erhalten. Beim ersten Öffnen oder Teilen
 in die App wird die Ansicht mit dem passenden Namen "Start" aufgerufen. Die zweite Ansicht trägt den
 Namen "Archiv", da hier die gespeicherten Texte angezeigt werden.
 
@@ -88,9 +88,9 @@ Ein weiteres Feature der App ist die Option zum  Speicherns von erzeugten Texten
 einem Popup-Dialog zusätzlich angeben, von welcher Person die Sprachnachricht ursprünglich stammte.
 Das Speichern wird hier mithilfe von [SharedPreferences](https://developer.android.com/reference/android/content/SharedPreferences)
 ausgeführt, was eine performante persistente Speicherung von Strings ermöglicht. Das Speichern der Named
-Entities wird in der App mithilfe von Stringoperationen ermöglicht. In einer weiteren Ansicht der App
+Entities wird in der App mithilfe von HTML-Verschlüsselung ermöglicht. In einer weiteren Ansicht der App
 mit der Überschrift "Archiv" (s. [Navigation](#26-navigation)) lassen sich die gespeicherten Texte sichten,
-nachlesen und bei Bedarf löschen. Eine Bearbeitung ist hier nicht mehr möglich. Sie werden in einer
+nachlesen und bei Bedarf löschen. Eine Bearbeitung ist hier nicht mehr möglich. Die Einträge werden in einer
 ListView nach Datum der Sprachnachricht sortiert angezeigt.
 
 <img align="center" width="482px" height="500px" src="https://user-images.githubusercontent.com/23056751/111760729-58725e80-889f-11eb-9e71-3bfa62eb6fc7.png" alt="Speichern von Texten">
