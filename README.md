@@ -37,8 +37,8 @@ kommt die `FFMPEG`-Bibliothek zum Einsatz.
 ### 2.3 Übertragung der Sprachnachricht an Wit.Ai
 Zur Umwandlung der in [2.2](#22-konvertierung-opus-zu-mp3-und-splitting-der-datei) umgewandelten und
 gesplitteten Dateien in Text kommt die Machine-Learning-basierte NLP-API [Wit.Ai](https://wit.ai/)
-zum Einsatz. Die Verbindung erfolgt über HTTP-Requests mithilfe des REST-Clients [Retrofit]
-(https://square.github.io/retrofit/). Damit sich die einzelnen Calls nicht überschneiden, und der
+zum Einsatz. Die Verbindung erfolgt über HTTP-Requests mithilfe des REST-Clients [Retrofit](https://square.github.io/retrofit/).
+Damit sich die einzelnen Calls nicht überschneiden, und der
 Text zur Sprachnachricht trotz der Aufteilung des Files in der richtigen Reihenfolge ankommt, wird
 mit rekursivem Aufruf der entsprechenden Methode "callWit" gearbeitet.
 
@@ -51,11 +51,9 @@ Daten und Namen ([wit\datetime](https://wit.ai/docs/built-in-entities/20200513/#
 [wit\contact](https://wit.ai/docs/built-in-entities/20200513/#wit_contact)).
 
 ### 2.5 Rückgabe und Darstellung der Daten
-Die Rückgabe der Daten durch Wit.Ai erfolgt im JSON-Format, siehe noch einmal der [\speech-Endpunkt]
-(https://wit.ai/docs/http/20200513#post__speech_link).
+Die Rückgabe der Daten durch Wit.Ai erfolgt im JSON-Format, siehe noch einmal der [\speech-Endpunkt](https://wit.ai/docs/http/20200513#post__speech_link).
 Aus diesem Format lassen sich die benötigten Informationen über den Text und die Named Entities extrahieren.
-Die Anzeige der von Wit.Ai erkannten Named Entities erfolgt in der Android-App über [SpannableStrings]
-(https://developer.android.com/reference/android/text/SpannableString).
+Die Anzeige der von Wit.Ai erkannten Named Entities erfolgt in der Android-App über [SpannableStrings](https://developer.android.com/reference/android/text/SpannableString).
 In der JSON-Response werden die Start- und Endindices der jeweiligen Entity
 (hier: wit$contact:contact und wit$datetime:datetime) angegeben. Die Indices werden verwendet, um in
 den SpannableStrings entsprechende Spans zu setzen und die Textfarbe der Spans zu ändern. Weiterhin
