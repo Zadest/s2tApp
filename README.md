@@ -23,7 +23,8 @@ geprüft, ob eine WhatsApp-Sprachnachrichten im .opus-Format geteilt wurde. Das 
 .ogg-Datei mit .opus-Codec. Wenn die Typüberprüfung erfolgreich war, wird die Datei an die
 Weiterverarbeitung übergeben.
 
-![share](https://user-images.githubusercontent.com/23056751/111759931-712e4480-889e-11eb-8710-98a9427a37f1.png)
+<div style="text-aling:center;">![share](https://user-images.githubusercontent.com/23056751/111760636-3b3d9000-889f-11eb-979f-92a166f94f12.png)
+</div>
 
 ### 2.2 Konvertierung Opus zu MP3 und Splitting der Datei
 Die an unsere App in Schritt [2.1](#21-whatsapp-sprachnachricht-exportieren) übersendete Datei hat
@@ -62,6 +63,9 @@ den SpannableStrings entsprechende Spans zu setzen und die Textfarbe der Spans z
 ist es in der App durch einen langen Klick auf den Text möglich, diesen vorm eventuellen Speichern
 noch einmal zu bearbeiten.
 
+<div style="text-align:center;">![transcribe](https://user-images.githubusercontent.com/23056751/111760698-4ee8f680-889f-11eb-80f8-55109c2d421e.png)
+</div>
+
 ### 2.6 Navigation
 Die Navigation in der App geschieht über eine BottomNavigation und Fragments, die Teilbereiche der App
 darstellen. Für jedes Fragment ist eine Java-Klasse, für die Funktionalität, und eine XML-Ressourcen-Datei,
@@ -89,3 +93,7 @@ Entities wird in der App mithilfe von Stringoperationen ermöglicht. In einer we
 mit der Überschrift "Archiv" (s. [Navigation](#26-navigation)) lassen sich die gespeicherten Texte sichten,
 nachlesen und bei Bedarf löschen. Eine Bearbeitung ist hier nicht mehr möglich. Sie werden in einer
 ListView nach Datum der Sprachnachricht sortiert angezeigt.
+
+<div style="text-align:center;">![save](https://user-images.githubusercontent.com/23056751/111760729-58725e80-889f-11eb-9e71-3bfa62eb6fc7.png)
+</div>
+
