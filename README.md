@@ -23,6 +23,9 @@ geprüft, ob eine WhatsApp-Sprachnachrichten im .opus-Format geteilt wurde. Das 
 .ogg-Datei mit .opus-Codec. Wenn die Typüberprüfung erfolgreich war, wird die Datei an die
 Weiterverarbeitung übergeben.
 
+[!Bild aus Whatsapp Teilen](https://github.com/Zadest/s2tApp/blob/main/imgs/share1.png)
+[!Bild aus Whatsapp Teilen2](https://github.com/Zadest/s2tApp/blob/main/imgs/share2.png)
+
 ### 2.2 Konvertierung Opus zu MP3 und Splitting der Datei
 Die an unsere App in Schritt [2.1](#21-whatsapp-sprachnachricht-exportieren) übersendete Datei hat
 den Dateityp .ogg mit opus-Codec. Wit.Ai kann dieses Format nicht verarbeiten, weshalb eine Konvertierung
